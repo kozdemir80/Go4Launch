@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+   <item
+       android:id="@+id/map_view"
+       android:enabled="true"
+       android:icon="@drawable/ic_baseline_map_24"
+       android:title="Map View"
+       tools:ignore="HardcodedText" />
+    <item
+        android:id="@+id/list_view"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_format_list_bulleted_24"
+        android:title="List View"
+        tools:ignore="HardcodedText" />
+    <item
+        android:id="@+id/work_mate"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_people_24"
+        android:title="WorkMates"
+        tools:ignore="HardcodedText" />
+
+</menu>

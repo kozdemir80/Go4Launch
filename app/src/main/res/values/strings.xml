@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Go4Launch</string>
+    <string name="map_view">Map View</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="sign_in_with_facebook">sign_in_with_facebook</string>
+    <string name="sign_in_with_google">sign_in_with_google</string>
+    <string name="sign_in_with_email">sign_in_with_email</string>
+    <string name="logo">logo</string>
+    <string name="mapbox_access_token">sk.eyJ1Ijoia296ZGVtaXI4MCIsImEiOiJjbDMyYXBmZDMwNWFnM2NyeHphdGZiam5jIn0.LShsBseptCN46Zyr7p2p6Q</string>
+</resources>
