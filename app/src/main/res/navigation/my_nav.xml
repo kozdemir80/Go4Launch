@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/map_view_fragment"
-        android:name="com.example.go4launch.MapViewFragment"
+        android:name="com.example.go4launch.fragments.MapViewFragment"
         android:label="fragment_map_view"
         tools:layout="@layout/fragment_map_view" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/list_view_fragment"
-        android:name="com.example.go4launch.ListViewFragment"
+        android:name="com.example.go4launch.fragments.ListViewFragment"
         android:label="fragment_list_view"
         tools:layout="@layout/fragment_list_view" >
         <action
@@ -25,7 +25,7 @@
     </fragment>
     <fragment
         android:id="@+id/work_mate_fragment"
-        android:name="com.example.go4launch.WorkMateFragment"
+        android:name="com.example.go4launch.fragments.WorkMateFragment"
         android:label="fragment_work_mate"
         tools:layout="@layout/fragment_work_mate" />
 </navigation>

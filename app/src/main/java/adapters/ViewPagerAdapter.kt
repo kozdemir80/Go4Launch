@@ -4,7 +4,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.go4launch.*
+import com.example.go4launch.fragments.ListViewFragment
+import com.example.go4launch.fragments.MapViewFragment
+import com.example.go4launch.fragments.WorkMateFragment
 
 class ViewPagerAdapter(FragmentManager: FragmentManager, lifecycle: Lifecycle): FragmentStateAdapter(FragmentManager,lifecycle){
     override fun getItemCount(): Int {
