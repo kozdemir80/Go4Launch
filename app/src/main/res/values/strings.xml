@@ -9,5 +9,5 @@
     <string name="sign_in_with_google">sign_in_with_google</string>
     <string name="sign_in_with_email">sign_in_with_email</string>
     <string name="logo">logo</string>
-    <string name="mapbox_access_token">s</string>
+    <string name="client_id">"client_id":16539640636-cdfkhpktamgnkbfjmvkgrva30k0nfis9.apps.googleusercontent.com</string>
 </resources>

@@ -1,4 +1,4 @@
-package adapters
+package com.example.go4launch.adapters
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
