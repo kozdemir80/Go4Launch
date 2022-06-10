@@ -32,6 +32,7 @@ private lateinit var binding: SignInActivityBinding
 
 
 
+@Suppress("DEPRECATION")
 class SignInActivity: AppCompatActivity() {
     @SuppressLint("CommitPrefEdits")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +79,7 @@ class SignInActivity: AppCompatActivity() {
                     val account = task.getResult(ApiException::class.java)!!
                     Log.d("SignInActivity", "firebaseAuthWithGoogle:" + account.id)
                     firebaseAuthWithGoogle(account.idToken)
+
                 } catch (e: ApiException) {
                     Log.w("SignInActivity", "Google sign in failed", e)
                 }
@@ -97,16 +99,16 @@ class SignInActivity: AppCompatActivity() {
                     Log.d("SingInActivity", "signInWithCredential:success")
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
-                    val name = mAuth.currentUser?.displayName
-                    val email = mAuth.currentUser?.email
-                    val userPhoto = mAuth.currentUser?.photoUrl
-                    val preferences = getSharedPreferences("userDetails", MODE_PRIVATE)
-                    val editor = preferences.edit()
-                    editor.putString("name", name)
-                    Log.d("mName",name.toString())
-                    editor.putString("email", email)
-                    editor.putString("userPhoto", userPhoto.toString())
+
+                  val username= mAuth.currentUser?.displayName
+                    Log.d("myuser",username.toString())
+                   val preferences=getSharedPreferences("name", MODE_PRIVATE)
+                    val editor=preferences.edit()
+                    editor.putString("myName",username)
                     editor.apply()
+                    Log.d("userName",editor.putString("myname",username).toString())
+
+
 
                 } else {
                     Log.w("SignInActivity", "signInWithCredential:failure", task.exception)

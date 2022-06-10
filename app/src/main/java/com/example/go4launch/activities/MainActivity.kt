@@ -13,6 +13,9 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.go4launch.R
 import com.example.go4launch.adapters.ViewPagerAdapter
 import com.example.go4launch.databinding.ActivityMainBinding
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -23,11 +26,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var binding: ActivityMainBinding
     private lateinit var mAuth:FirebaseAuth
+    private lateinit var googleSignInClient: GoogleSignInClient
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        googleSignInClient= GoogleSignIn.getClient(this,gso)
         drawerViews()
         val adapter= ViewPagerAdapter(supportFragmentManager,lifecycle)
         val bottomNavigationView=findViewById<BottomNavigationView>(R.id.bottom_navigation)
@@ -83,7 +92,13 @@ class MainActivity : AppCompatActivity() {
             when(it.itemId){
                 R.id.launch -> Toast.makeText(applicationContext,"Your Launch",Toast.LENGTH_LONG).show()
                 R.id.settings -> Toast.makeText(applicationContext,"Settings",Toast.LENGTH_LONG).show()
-                R.id.logout-> Toast.makeText(applicationContext,"Logout",Toast.LENGTH_LONG).show()
+                R.id.logout-> {
+                    googleSignInClient.signOut().addOnCompleteListener {
+                        val intent=Intent(this,SignInActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
             }
             true
         }
