@@ -3,10 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="16dp"
-    android:background="@color/white"
+    android:layout_height="200dp"
+    android:background="@drawable/background_cafe"
     android:orientation="horizontal">
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -25,6 +23,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="12dp"
+        android:layout_marginBottom="80dp"
         android:paddingStart="50dp"
         android:paddingTop="8dp"
         android:text="First and last name"
@@ -33,7 +32,22 @@
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/circleImageView"
         tools:ignore="HardcodedText,HardcodedTexts,RtlSymmetry,SmallSp" />
 
+    <TextView
+        android:id="@+id/email"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="24dp"
+        android:paddingStart="50dp"
+        android:paddingTop="8dp"
+        android:text="email_address"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        tools:ignore="HardcodedText,HardcodedTexts,RtlSymmetry,SmallSp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

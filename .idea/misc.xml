@@ -4,7 +4,9 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable-anydpi/ic_action_list.xml" value="0.207" />
+        <entry key="app/src/main/res/drawable/entered.xml" value="0.1175" />
         <entry key="app/src/main/res/drawable/ic_action_list2.xml" value="0.207" />
+        <entry key="app/src/main/res/drawable/selector.xml" value="0.213" />
         <entry key="app/src/main/res/layout-v21/sign_in_activity.xml" value="0.19610507246376813" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_list_view.xml" value="0.19610507246376813" />
@@ -13,7 +15,9 @@
         <entry key="app/src/main/res/layout/fragment_work_mate.xml" value="0.19610507246376813" />
         <entry key="app/src/main/res/layout/item_restaurant.xml" value="0.25" />
         <entry key="app/src/main/res/layout/nav_header.xml" value="0.10989583333333333" />
+        <entry key="app/src/main/res/layout/restaurant_details_activity.xml" value="0.25" />
         <entry key="app/src/main/res/layout/sign_in_activity.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/user_information_activity.xml" value="0.20742753623188406" />
         <entry key="app/src/main/res/menu/nav_drawer.xml" value="0.2421875" />
         <entry key="app/src/main/res/menu/nav_menu.xml" value="0.2421875" />
         <entry key="app/src/main/res/menu/search_menu.xml" value="0.2421875" />

@@ -1,105 +1,96 @@
 package com.example.go4launch.fragments
 
 import android.annotation.SuppressLint
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.go4launch.BuildConfig
 import com.example.go4launch.R
+import com.example.go4launch.activities.RestaurantDetails
 import com.example.go4launch.adapters.RestaurantAdapter
-import com.example.go4launch.model.restaturantDetails.RestaurantDetails
+import com.example.go4launch.api.RestaurantRepository
+import com.example.go4launch.viewmodel.ConvertorFactory
 import com.example.go4launch.viewmodel.MapsViewModel
-import com.google.android.gms.common.api.Status
-import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 
 class ListViewFragment : Fragment(R.layout.fragment_list_view) {
-    private lateinit var viewModel: MapsViewModel
     private lateinit var restaurantAdapter: RestaurantAdapter
     private lateinit var recyclerView: RecyclerView
-    private lateinit var restaurantDetails: RestaurantDetails
+    private lateinit var mapsViewModel:MapsViewModel
 
-    private lateinit var packageManager: PackageManager
-    private lateinit var textView:TextView
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-         textView=view.findViewById(R.id.list_recyclerView)
+        recyclerView=view.findViewById(R.id.list_recyclerView)
+        restaurantAdapter= RestaurantAdapter()
+        recyclerView.adapter=restaurantAdapter
+        recyclerView.layoutManager= LinearLayoutManager(activity)
+        recyclerView.setHasFixedSize(true)
+        restaurantAdapter.notifyDataSetChanged()
 
-        val ai: ApplicationInfo = requireContext().packageManager
-            .getApplicationInfo(requireContext().packageName, PackageManager.GET_META_DATA)
-        val value = ai.metaData["api_key"]
-        val apiKey = value.toString()
 
-        // Initializing the Places API
-        // with the help of our API_KEY
-        if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), apiKey)
+
+        val apikey= BuildConfig.MAPS_API_KEY
+        val locLat=37.076526
+        val locLng=36.242001
+        val type="restaurant"
+        val radius=1000
+
+        val repository= RestaurantRepository()
+        val convertorFactory= ConvertorFactory(repository)
+        mapsViewModel= MapsViewModel(repository)
+
+        mapsViewModel= ViewModelProvider(this,convertorFactory).get(mapsViewModel::class.java)
+        mapsViewModel.getRestaurantDetails(key = apikey,loc="${locLat},${locLng}", type = type, radius = radius.toString())
+        mapsViewModel.myResponse.observe(viewLifecycleOwner){response->
+            if (response.isSuccessful){
+               response.body().let {myResponse->
+                  restaurantAdapter.differ.submitList(myResponse?.results)
+
+                   restaurantAdapter.setOnItemClickListener(object :RestaurantAdapter.onItemClickListener{
+                       override fun onItemClick(position: Int) {
+                           val preferences =
+                               activity?.getSharedPreferences("myPreferences", Context.MODE_PRIVATE)
+                           val editor=preferences?.edit()
+                           editor?.putString("phone_number", myResponse!!.results[position].formatted_phone_number)
+                           editor?.putString("website",myResponse!!.results[position].website)
+                           editor?.putFloat("rating",myResponse!!.results[position].rating.toFloat())
+                           editor?.putString("name",myResponse!!.results[position].name)
+                           editor?.putString("address",myResponse!!.results[position].vicinity)
+                           editor?.putString("image",myResponse!!.results[0].icon)
+                           editor?.apply()
+
+                           val intent= Intent(activity,RestaurantDetails::class.java)
+                           startActivity(intent)
+                       }
+
+                   })
+
+               }
+
+
+
+            }
+
         }
 
-        // Initialize Autocomplete Fragments
-        // from the main activity layout file
-        val autocompleteSupportFragment1 = childFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment?
-
-        // Information that we wish to fetch after typing
-        // the location and clicking on one of the options
-        autocompleteSupportFragment1!!.setPlaceFields(
-            listOf(
-
-                Place.Field.NAME,
-                Place.Field.ADDRESS,
-                Place.Field.PHONE_NUMBER,
-                Place.Field.PHOTO_METADATAS,
-                Place.Field.OPENING_HOURS,
-                Place.Field.RATING,
-                Place.Field.TYPES
-
-
-
-            )
-        )
-
-        // Display the fetched information after clicking on one of the options
-        autocompleteSupportFragment1.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-            @SuppressLint("SetTextI18n")
-            override fun onPlaceSelected(place: Place) {
-                // Text view where we will
-                // append the information that we fetch
-
-
-                // Information about the place
-                val name = place.name
-                val address = place.address
-                val phone = place.phoneNumber.toString()
-                val photo = place.photoMetadatas
-                val type = place.types
-                val review =place.rating?.toFloat()
-                val openingHours=place.openingHours
-
-
-
-
-                restaurantDetails= RestaurantDetails(name=name!!,address=address!!,phone=phone!!, type = type!!, review =review!!,
-                    photo = photo!!, openingHours = openingHours!! )
-                textView.text = "Name: $name \nAddress: $address \nPhone Number: $phone \n"
-                        "\nIs open : $openingHours \n" +
-                        "Rating: $review "
-
-            }
-
-            override fun onError(status: Status) {
-                Toast.makeText(requireContext(),"Some error occurred", Toast.LENGTH_SHORT).show()
-            }
-        })
 
     }
-        }
+}
+
+
+
+
+
+
+
+
+
 
 
 

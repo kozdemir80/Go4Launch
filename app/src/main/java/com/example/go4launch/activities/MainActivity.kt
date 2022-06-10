@@ -78,11 +78,12 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
     private fun drawerViews(){
+        binding.navView.setBackgroundResource(com.google.android.libraries.places.R.color.quantum_orange)
         binding.navView.setNavigationItemSelectedListener {
             when(it.itemId){
-                R.id.item1 -> Toast.makeText(applicationContext,"Your Launch",Toast.LENGTH_LONG).show()
-                R.id.item2 -> Toast.makeText(applicationContext,"Settings",Toast.LENGTH_LONG).show()
-                R.id.item3 -> Toast.makeText(applicationContext,"Logout",Toast.LENGTH_LONG).show()
+                R.id.launch -> Toast.makeText(applicationContext,"Your Launch",Toast.LENGTH_LONG).show()
+                R.id.settings -> Toast.makeText(applicationContext,"Settings",Toast.LENGTH_LONG).show()
+                R.id.logout-> Toast.makeText(applicationContext,"Logout",Toast.LENGTH_LONG).show()
             }
             true
         }

@@ -1,14 +1,18 @@
 package com.example.go4launch.fragments
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.example.go4launch.BuildConfig.MAPS_API_KEY
 import com.example.go4launch.R
+import com.example.go4launch.viewmodel.MapsViewModel
+import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -22,9 +26,11 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 
 @Suppress("DEPRECATION")
 class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,GoogleMap.OnMarkerClickListener {
+
     private var mapView: GoogleMap? = null
     private lateinit var lastLocation: Location
     private lateinit var placesClient: PlacesClient
@@ -33,11 +39,19 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
     companion object {
         private const val REQUEST_CODE=1
     }
+    private lateinit var mapsViewModel: MapsViewModel
+
+
 
 
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+
+
+
         Places.initialize(requireActivity(),MAPS_API_KEY )
         placesClient = Places.createClient(requireContext())
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
@@ -47,16 +61,20 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
         val autocompleteFragment =
             childFragmentManager.findFragmentById(R.id.autocomplete_fragment)
                     as AutocompleteSupportFragment
-        autocompleteFragment!!.setPlaceFields(listOf(
+        autocompleteFragment.setPlaceFields(listOf( Place.Field.NAME))
 
-            Place.Field.NAME,
-            Place.Field.ADDRESS,
-            Place.Field.PHONE_NUMBER,
-            Place.Field.LAT_LNG,
-            Place.Field.OPENING_HOURS,
-            Place.Field.RATING,
-            Place.Field.USER_RATINGS_TOTAL
-        ))
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            override fun onPlaceSelected(place: Place) {
+                // TODO: Get info about the selected place.
+                Log.i(TAG, "Place: ${place.name}")
+            }
+
+            override fun onError(p0: Status) {
+                Log.i(TAG, "An error occurred")
+            }
+        })
+
+
 
     }
 
@@ -68,9 +86,11 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
         mapView = googleMap
         mapView?.uiSettings?.isZoomControlsEnabled=true
         mapView?.setOnMarkerClickListener(this)
-        setUpMap()
+         setUpMap()
 
-    }
+        }
+
+
 
     @SuppressLint("MissingPermission")
     private fun setUpMap() {
@@ -101,3 +121,4 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
     override fun onMarkerClick(p0: Marker)=false
 
 }
+
