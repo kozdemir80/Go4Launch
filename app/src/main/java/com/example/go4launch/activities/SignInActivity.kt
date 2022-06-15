@@ -1,17 +1,25 @@
 package com.example.go4launch.activities
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.go4launch.R
 import com.example.go4launch.constants.Constants.Companion.RC_SIGN_IN
 import com.example.go4launch.databinding.SignInActivityBinding
+import com.facebook.AccessToken
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DatabaseReference
@@ -28,7 +36,7 @@ private lateinit var binding: SignInActivityBinding
  private lateinit var dialog:Dialog
  private lateinit var user:User
  private lateinit var uid:String
-
+private lateinit var callbackManager: CallbackManager
 
 
 
@@ -40,6 +48,7 @@ class SignInActivity: AppCompatActivity() {
         setContentView(R.layout.sign_in_activity)
         binding = SignInActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val TAG=""
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -51,7 +60,28 @@ class SignInActivity: AppCompatActivity() {
         binding.btnLoginGoogle.setOnClickListener {
             singIn()
         }
+        callbackManager= CallbackManager.Factory.create()
+        // Initialize Facebook Login button
+        callbackManager = CallbackManager.Factory.create()
 
+        binding.btnLoginFb.setReadPermissions("email", "public_profile")
+        binding.btnLoginFb.registerCallback(callbackManager, object :
+            FacebookCallback<LoginResult> {
+            override fun onSuccess(loginResult: LoginResult) {
+                Log.d(TAG, "facebook:onSuccess:$loginResult")
+                handleFacebookAccessToken(loginResult.accessToken)
+            }
+
+            override fun onCancel() {
+                Log.d(TAG, "facebook:onCancel")
+                // ...
+            }
+
+            override fun onError(error: FacebookException) {
+                Log.d(TAG, "facebook:onError", error)
+                // ...
+            }
+        })
 
 
     }
@@ -88,6 +118,7 @@ class SignInActivity: AppCompatActivity() {
             }
 
         }
+        callbackManager.onActivityResult(requestCode, resultCode, data)
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -115,6 +146,25 @@ class SignInActivity: AppCompatActivity() {
 
                 }
 
+            }
+    }
+    private fun handleFacebookAccessToken(token: AccessToken) {
+        Log.d(TAG, "handleFacebookAccessToken:$token")
+
+        val credential = FacebookAuthProvider.getCredential(token.token)
+        mAuth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "signInWithCredential:success")
+
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "signInWithCredential:failure", task.exception)
+                    Toast.makeText(baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
+
+                }
             }
     }
 }

@@ -14,5 +14,4 @@ interface GoogleMapsApi {
         @Query("radius") radius:String?
     ):Response<RestaurantDetails>
 
-
 }

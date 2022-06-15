@@ -5,11 +5,14 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import coil.load
 import com.example.go4launch.R
 import com.example.go4launch.adapters.ViewPagerAdapter
 import com.example.go4launch.databinding.ActivityMainBinding
@@ -27,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mAuth:FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -38,6 +42,7 @@ class MainActivity : AppCompatActivity() {
             .build()
         googleSignInClient= GoogleSignIn.getClient(this,gso)
         drawerViews()
+        navHeader()
         val adapter= ViewPagerAdapter(supportFragmentManager,lifecycle)
         val bottomNavigationView=findViewById<BottomNavigationView>(R.id.bottom_navigation)
         val navController=binding.fragmentContainerView.getFragment<NavHostFragment>().navController
@@ -52,6 +57,9 @@ class MainActivity : AppCompatActivity() {
        mAuth= Firebase.auth
         mAuth= FirebaseAuth.getInstance()
         val user=mAuth.currentUser
+
+
+
        Handler(Looper.getMainLooper()).postDelayed({
             if (user == null){
                 val signInIntent= Intent(this,SignInActivity::class.java)
@@ -102,5 +110,18 @@ class MainActivity : AppCompatActivity() {
             }
             true
         }
+    }
+
+    private fun navHeader(){
+        mAuth= Firebase.auth
+        mAuth= FirebaseAuth.getInstance()
+     val headerView=binding.navView.getHeaderView(0)
+       val headerImage= headerView.findViewById<ImageView>(R.id.circleImageView)
+       val headerName=headerView.findViewById<TextView>(R.id.name)
+       val headerEmail=headerView.findViewById<TextView>(R.id.email)
+        headerImage.load(mAuth.currentUser?.photoUrl)
+        headerName.text=mAuth.currentUser?.displayName
+        headerEmail.text=mAuth.currentUser?.email
+
     }
 }

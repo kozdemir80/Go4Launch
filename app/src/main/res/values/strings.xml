@@ -16,4 +16,10 @@
     <string name="upload_profile_image" />
     <string name="email_address" />
     <string name="create_profile" />
+    <string name="pick_place" />
+    <string name="default_info_title" />
+    <string name="default_info_snippet" />
+    <string name="facebook_app_id">1241338556615043</string>
+    <string name="fb_login_protocol_scheme">fb1241338556615043</string>
+    <string name="facebook_client_token">d4d9d2b8e63387cbcfd1403ac78645ca</string>
 </resources>

@@ -9,11 +9,14 @@
         <entry key="app/src/main/res/drawable/selector.xml" value="0.213" />
         <entry key="app/src/main/res/layout-v21/sign_in_activity.xml" value="0.19610507246376813" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/current_place_menu.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/custom_info_contents.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_list_view.xml" value="0.19610507246376813" />
         <entry key="app/src/main/res/layout/fragment_map_view.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_maps.xml" value="0.19610507246376813" />
         <entry key="app/src/main/res/layout/fragment_work_mate.xml" value="0.19610507246376813" />
         <entry key="app/src/main/res/layout/item_restaurant.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/item_workmates.xml" value="0.20742753623188406" />
         <entry key="app/src/main/res/layout/nav_header.xml" value="0.10989583333333333" />
         <entry key="app/src/main/res/layout/restaurant_details_activity.xml" value="0.25" />
         <entry key="app/src/main/res/layout/sign_in_activity.xml" value="0.335" />

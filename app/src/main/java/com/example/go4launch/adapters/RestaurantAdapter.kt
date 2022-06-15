@@ -33,9 +33,6 @@ class RestaurantAdapter:RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHol
 
 
     override fun onBindViewHolder(holder: RestaurantViewHolder, position: Int) {
-
-
-
         val restaurants=differ.currentList[position]
 
        try {

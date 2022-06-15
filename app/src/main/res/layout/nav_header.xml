@@ -26,13 +26,11 @@
         android:layout_marginBottom="80dp"
         android:paddingStart="50dp"
         android:paddingTop="8dp"
-        android:text="First and last name"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:ignore="HardcodedText,HardcodedTexts,RtlSymmetry,SmallSp" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <TextView
         android:id="@+id/email"
@@ -42,8 +40,7 @@
         android:layout_marginBottom="24dp"
         android:paddingStart="50dp"
         android:paddingTop="8dp"
-        android:text="email_address"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
