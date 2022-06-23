@@ -13,5 +13,11 @@ interface GoogleMapsApi {
         @Query("key") key: String?,
         @Query("radius") radius:String?
     ):Response<RestaurantDetails>
+    @GET("nearbysearch/json")
+    suspend fun currentRestaurant(
+        @Query("location") loc: String?,
+        @Query("type") type: String?,
+        @Query("key") key: String?,
 
+    ):Response<RestaurantDetails>
 }

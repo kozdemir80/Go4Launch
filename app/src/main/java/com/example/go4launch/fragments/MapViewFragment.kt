@@ -28,18 +28,13 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.ktx.Firebase
 
 @Suppress("DEPRECATION")
 class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,GoogleMap.OnMarkerClickListener {
@@ -77,7 +72,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
     private var likelyPlaceAddresses: Array<String?> = arrayOfNulls(0)
     private var likelyPlaceAttributions: Array<List<*>?> = arrayOfNulls(0)
     private var likelyPlaceLatLng: Array<LatLng?> = arrayOfNulls(0)
-    private lateinit var auth:FirebaseAuth
+    private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
 
 
@@ -88,8 +83,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
             lastLocation = savedInstanceState.getParcelable(KEY_LOCATION)!!
             cameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION)
         }
-
-
 
 
         // Construct a PlacesClient
@@ -146,7 +139,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
                 return infoWindow
             }
         })
-         mapView?.setOnMarkerClickListener(this)
+        mapView?.setOnMarkerClickListener(this)
         // Prompt the user for permission.
         getLocationPermission()
 
@@ -157,6 +150,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
         getDeviceLocation()
         showCurrentPlace()
         nearByRestaurants()
+
     }
 
     /**
@@ -260,9 +254,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
             placeResult.addOnCompleteListener { task ->
                 if (task.isSuccessful && task.result != null) {
                     val likelyPlaces = task.result
-                    auth= Firebase.auth
-
-
                     val count =
                         if (likelyPlaces != null && likelyPlaces.placeLikelihoods.size < M_MAX_ENTRIES) {
                             likelyPlaces.placeLikelihoods.size
@@ -369,60 +360,77 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
     }
 
 
-    @SuppressLint("PotentialBehaviorOverride")
+    @SuppressLint("PotentialBehaviorOverride", "MissingPermission")
     private fun nearByRestaurants() {
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedLocationProviderClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+                val lat=location?.latitude
+                val lng=location?.longitude
+                val currentMarker=LatLng(lat!!,lng!!)
+                mapView?.addMarker(MarkerOptions().position(currentMarker).icon(
+                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+                ))
+                val apikey = MAPS_API_KEY
+                val locLat = lat
+                val locLng = lng
+                val type = "restaurant"
+                val radius = 1000
+                val repository = RestaurantRepository()
+                val convertorFactory = ConvertorFactory(repository)
+                mapsViewModel = MapsViewModel(repository)
+                mapsViewModel =
+                    ViewModelProvider(this, convertorFactory).get(mapsViewModel::class.java)
 
-        val apikey = MAPS_API_KEY
-        val locLat = 37.076526
-        val locLng = 36.242001
-        val type = "restaurant"
-        val radius = 1000
-        val repository = RestaurantRepository()
-        val convertorFactory = ConvertorFactory(repository)
-        mapsViewModel = MapsViewModel(repository)
-        mapsViewModel = ViewModelProvider(this, convertorFactory).get(mapsViewModel::class.java)
-        mapsViewModel.getRestaurantDetails(key = apikey,
-            loc = "${locLat},${locLng}",
-            type = type,
-            radius = radius.toString())
-        mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
-            if (response.isSuccessful) {
-                response.body().let { myResponse ->
-                    for (i in 0 until myResponse!!.results.size) {
+                mapsViewModel.getRestaurantDetails(key = apikey,
+                    loc = "${locLat},${locLng}",
+                    type = type,
+                    radius = radius.toString())
+                mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
+                    if (response.isSuccessful) {
+                        response.body().let { myResponse ->
+                            for (i in 0 until myResponse!!.results.size) {
 
-                        val lat = myResponse.results[i].geometry.location.lat
-                        val lng = myResponse.results[i].geometry.location.lng
-                        val locations = LatLng(lat, lng)
-                        mapView?.addMarker(MarkerOptions().position(locations).title(
-                        myResponse.results[i].name))
-                        val preferences =
-                            activity?.getSharedPreferences("myPreferences", Context.MODE_PRIVATE)
-                        val editor=preferences?.edit()
-                        editor?.putString("phone_number", myResponse.results[i].formatted_phone_number)
-                        editor?.putString("website",myResponse.results[i].website)
-                        editor?.putFloat("rating",myResponse.results[i].rating.toFloat())
-                        editor?.putString("name",myResponse.results[i].name)
-                        editor?.putString("address",myResponse.results[i].vicinity)
-                        editor?.putString("image",myResponse.results[i].icon)
-                        editor?.apply()
 
-                    }
+                                val Lat = myResponse.results[i].geometry.location.lat
+                                val Lng = myResponse.results[i].geometry.location.lng
+                                val locations = LatLng(Lat, Lng)
+                                mapView?.addMarker(MarkerOptions().position(locations).title(
+                                    myResponse.results[i].name))
+
+
+                                val preferences =
+                                    activity?.getSharedPreferences("myPreferences",
+                                        Context.MODE_PRIVATE)
+                                val editor = preferences?.edit()
+                                editor?.putString("phone_number",
+                                    myResponse.results[i].formatted_phone_number)
+                                editor?.putString("website", myResponse.results[i].website)
+                                editor?.putFloat("rating", myResponse.results[i].rating.toFloat())
+                                editor?.putString("name", myResponse.results[i].name)
+                                editor?.putString("address", myResponse.results[i].vicinity)
+                                editor?.putString("image", myResponse.results[i].icon)
+                                editor?.apply()
+
+                            }
 
                         }
                     }
 
+                }
             }
+    }
 
-        }
-    override fun onMarkerClick(p0: Marker):Boolean{
-        val intent=Intent(activity,RestaurantDetails::class.java)
+    override fun onMarkerClick(p0: Marker): Boolean {
+        val intent = Intent(activity, RestaurantDetails::class.java)
         startActivity(intent)
+
         return false
     }
-    }
 
 
 
+}
 
 
 

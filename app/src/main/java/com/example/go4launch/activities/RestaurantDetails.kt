@@ -1,5 +1,7 @@
 package com.example.go4launch.activities
 
+
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,13 +11,12 @@ import androidx.core.view.isVisible
 import coil.load
 import com.example.go4launch.R
 import com.example.go4launch.databinding.RestaurantDetailsActivityBinding
-
-
 import com.like.LikeButton
 import com.like.OnLikeListener
 
 class RestaurantDetails:AppCompatActivity() {
       private lateinit var binding: RestaurantDetailsActivityBinding
+    @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.restaurant_details_activity)
@@ -30,6 +31,12 @@ class RestaurantDetails:AppCompatActivity() {
         val rating=preferences.getFloat("rating",0.0f)
         val myImage=preferences.getString("image",null)
 
+        binding.fabBook.setOnClickListener {view->
+        if (binding.fabBook.isChecked){
+
+        }
+
+        }
         binding.restaurantImageView.load(myImage)
         binding.detailsRestaurantName.text=name
         if (binding.detailsRestaurantName.text.isNotEmpty()){
@@ -59,7 +66,7 @@ class RestaurantDetails:AppCompatActivity() {
             }
 
             override fun unLiked(likeButton: LikeButton?) {
-
+                binding.like.isInvisible
             }
 
         })

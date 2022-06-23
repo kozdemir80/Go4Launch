@@ -51,7 +51,7 @@ class SignInActivity: AppCompatActivity() {
         val TAG=""
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestIdToken(getString(R.string.client_id))
             .requestEmail()
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
@@ -138,8 +138,6 @@ class SignInActivity: AppCompatActivity() {
                     editor.putString("myName",username)
                     editor.apply()
                     Log.d("userName",editor.putString("myname",username).toString())
-
-
 
                 } else {
                     Log.w("SignInActivity", "signInWithCredential:failure", task.exception)

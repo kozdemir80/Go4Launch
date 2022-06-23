@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable-anydpi/ic_action_list.xml" value="0.207" />
+        <entry key="app/src/main/res/drawable/custom_checkbox.xml" value="0.121" />
         <entry key="app/src/main/res/drawable/entered.xml" value="0.1175" />
         <entry key="app/src/main/res/drawable/ic_action_list2.xml" value="0.207" />
         <entry key="app/src/main/res/drawable/selector.xml" value="0.213" />

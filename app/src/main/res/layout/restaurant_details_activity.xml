@@ -142,7 +142,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="474dp" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <CheckBox
         android:id="@+id/fab_book"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -150,9 +150,7 @@
         android:layout_marginEnd="16dp"
         android:clickable="true"
         android:focusable="true"
-        android:src="@drawable/entered"
-        android:backgroundTint="#AEEA00"
-        android:text="Button"
+        android:backgroundTint="@color/white"
         app:elevation="30dp"
         app:layout_anchor="@id/restaurant_image_view"
         app:layout_anchorGravity="bottom|right|end"

@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestIdToken(getString(R.string.client_id))
             .requestEmail()
             .build()
         googleSignInClient= GoogleSignIn.getClient(this,gso)
@@ -67,13 +67,14 @@ class MainActivity : AppCompatActivity() {
         }, 2000)
 
         binding.bottomNavigation.setOnItemSelectedListener {
-            when(it.itemId) {
-                R.id.map_view ->binding.viewPager.currentItem=0
-                R.id.list_view ->binding.viewPager.currentItem=1
-                R.id.work_mate ->binding.viewPager.currentItem=2
+            when (it.itemId) {
+                R.id.map_view -> binding.viewPager.currentItem = 0
+                R.id.list_view -> binding.viewPager.currentItem = 1
+                R.id.work_mate -> binding.viewPager.currentItem = 2
             }
             return@setOnItemSelectedListener true
         }
+
 
     }
 
