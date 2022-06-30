@@ -37,9 +37,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.client_id))
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
+
         googleSignInClient= GoogleSignIn.getClient(this,gso)
         drawerViews()
         navHeader()
@@ -63,7 +64,8 @@ class MainActivity : AppCompatActivity() {
        Handler(Looper.getMainLooper()).postDelayed({
             if (user == null){
                 val signInIntent= Intent(this,SignInActivity::class.java)
-                startActivity(signInIntent) }
+                startActivity(signInIntent)
+            finish()}
         }, 2000)
 
         binding.bottomNavigation.setOnItemSelectedListener {

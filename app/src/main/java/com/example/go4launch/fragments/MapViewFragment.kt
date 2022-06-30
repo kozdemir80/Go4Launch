@@ -33,8 +33,6 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
 
 @Suppress("DEPRECATION")
 class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,GoogleMap.OnMarkerClickListener {
@@ -43,6 +41,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
     private lateinit var lastLocation: Location
     private lateinit var placesClient: PlacesClient
     private var cameraPosition: CameraPosition? = null
+
 
 
 
@@ -72,8 +71,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
     private var likelyPlaceAddresses: Array<String?> = arrayOfNulls(0)
     private var likelyPlaceAttributions: Array<List<*>?> = arrayOfNulls(0)
     private var likelyPlaceLatLng: Array<LatLng?> = arrayOfNulls(0)
-    private lateinit var auth: FirebaseAuth
-    private lateinit var database: DatabaseReference
+
 
 
     @SuppressLint("MissingPermission", "PotentialBehaviorOverride")
@@ -358,82 +356,83 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
             Log.e("Exception: %s", e.message, e)
         }
     }
-
-
     @SuppressLint("PotentialBehaviorOverride", "MissingPermission")
-    private fun nearByRestaurants() {
+       private fun nearByRestaurants() {
+        val preferences =
+            activity?.getSharedPreferences("myPreferences",
+                Context.MODE_PRIVATE)
+        val editor = preferences?.edit()
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        fusedLocationProviderClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                val lat=location?.latitude
-                val lng=location?.longitude
-                val currentMarker=LatLng(lat!!,lng!!)
-                mapView?.addMarker(MarkerOptions().position(currentMarker).icon(
+        fusedLocationProviderClient.lastLocation.addOnCompleteListener {
+            val currentLat=lastLocation.latitude
+            val currentLng=lastLocation.longitude
+            val rLat = preferences?.getString("lat", null)?.toDouble()
+            val rLng = preferences?.getString("lng", null)?.toDouble()
+
+            if (rLat != null && rLng != null) {
+                val restaurantLatLng = LatLng(rLat, rLng)
+
+                mapView?.addMarker(MarkerOptions().position(restaurantLatLng).icon(
                     BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
                 ))
-                val apikey = MAPS_API_KEY
-                val locLat = lat
-                val locLng = lng
-                val type = "restaurant"
-                val radius = 1000
-                val repository = RestaurantRepository()
-                val convertorFactory = ConvertorFactory(repository)
-                mapsViewModel = MapsViewModel(repository)
-                mapsViewModel =
-                    ViewModelProvider(this, convertorFactory).get(mapsViewModel::class.java)
+            }
+            val lat = currentLat
+            val lng = currentLng
+            val apikey = MAPS_API_KEY
+            val locLat = lat
+            val locLng = lng
+            val type = "restaurant"
+            val radius = 1000
+            val repository = RestaurantRepository()
+            val convertorFactory = ConvertorFactory(repository)
+            mapsViewModel = MapsViewModel(repository)
+            mapsViewModel =
+                ViewModelProvider(this, convertorFactory).get(mapsViewModel::class.java)
 
-                mapsViewModel.getRestaurantDetails(key = apikey,
-                    loc = "${locLat},${locLng}",
-                    type = type,
-                    radius = radius.toString())
-                mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
-                    if (response.isSuccessful) {
-                        response.body().let { myResponse ->
-                            for (i in 0 until myResponse!!.results.size) {
-
-
-                                val Lat = myResponse.results[i].geometry.location.lat
-                                val Lng = myResponse.results[i].geometry.location.lng
-                                val locations = LatLng(Lat, Lng)
-                                mapView?.addMarker(MarkerOptions().position(locations).title(
-                                    myResponse.results[i].name))
+            mapsViewModel.getRestaurantDetails(key = apikey,
+                loc = "${locLat},${locLng}",
+                type = type,
+                radius = radius.toString())
+            mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
+                if (response.isSuccessful) {
+                    response.body().let { myResponse ->
+                        for (i in 0 until myResponse!!.results.size) {
 
 
-                                val preferences =
-                                    activity?.getSharedPreferences("myPreferences",
-                                        Context.MODE_PRIVATE)
-                                val editor = preferences?.edit()
-                                editor?.putString("phone_number",
-                                    myResponse.results[i].formatted_phone_number)
-                                editor?.putString("website", myResponse.results[i].website)
-                                editor?.putFloat("rating", myResponse.results[i].rating.toFloat())
-                                editor?.putString("name", myResponse.results[i].name)
-                                editor?.putString("address", myResponse.results[i].vicinity)
-                                editor?.putString("image", myResponse.results[i].icon)
-                                editor?.apply()
+                            val Lat = myResponse.results[i].geometry.location.lat
+                            val Lng = myResponse.results[i].geometry.location.lng
+                            val locations = LatLng(Lat, Lng)
+                            mapView?.addMarker(MarkerOptions().position(locations).title(
+                                myResponse.results[i].name))
 
-                            }
+                            editor?.putString("phone_number1",
+                                myResponse.results[i].formatted_phone_number)
+                            editor?.putString("website", myResponse.results[i].website)
+                            editor?.putFloat("rating",
+                                myResponse.results[i].rating.toFloat())
+                            editor?.putString("name", myResponse.results[i].name)
+                            editor?.putString("address", myResponse.results[i].vicinity)
+                            editor?.putString("image", myResponse.results[i].icon)
+                            editor?.putString("lat",
+                                myResponse.results[i].geometry.location.lat.toString())
+                            editor?.putString("lng",
+                                myResponse.results[i].geometry.location.lng.toString())
+                            editor?.apply()
+
 
                         }
                     }
-
                 }
+
             }
+        }
     }
 
     override fun onMarkerClick(p0: Marker): Boolean {
         val intent = Intent(activity, RestaurantDetails::class.java)
         startActivity(intent)
-
         return false
     }
-
-
-
 }
-
-
-
-
 
 

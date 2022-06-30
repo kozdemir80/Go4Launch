@@ -1,6 +1,5 @@
 package com.example.go4launch.activities
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
@@ -22,20 +21,12 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.firestore.auth.User
-import com.google.firebase.storage.StorageReference
 
 
 private lateinit var binding: SignInActivityBinding
  private lateinit var mAuth: FirebaseAuth
  @SuppressLint("StaticFieldLeak")
  private lateinit var googleSignInClient: GoogleSignInClient
- private lateinit var databaseReference:DatabaseReference
- private lateinit var storageReference: StorageReference
- private lateinit var dialog:Dialog
- private lateinit var user:User
- private lateinit var uid:String
 private lateinit var callbackManager: CallbackManager
 
 
@@ -51,7 +42,7 @@ class SignInActivity: AppCompatActivity() {
         val TAG=""
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.client_id))
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)

@@ -9,9 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.go4launch.R
 import com.example.go4launch.model.userdetails.CurrentUser
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class UserAdapter(private var workmatesList: ArrayList<CurrentUser>):RecyclerView.Adapter<UserAdapter.UserViewHolder>(){
-
+         private lateinit var auth:FirebaseAuth
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         return UserViewHolder(
             LayoutInflater.from(parent.context).inflate
@@ -20,9 +23,11 @@ class UserAdapter(private var workmatesList: ArrayList<CurrentUser>):RecyclerVie
     }
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
+        auth = Firebase.auth
+        auth = FirebaseAuth.getInstance()
           val userList=workmatesList[position]
           holder.userName.text=userList.Name
-          holder.userPhoto.load(userList.Photo)
+          holder.userPhoto.load(auth.currentUser!!.photoUrl)
           holder.restaurantChoice.text=userList.restaurantId
           
 

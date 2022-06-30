@@ -12,6 +12,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageException
+import com.google.firebase.storage.StorageReference
 
 class WorkMateFragment:Fragment(R.layout.fragment_work_mate) {
 
@@ -23,6 +26,7 @@ class WorkMateFragment:Fragment(R.layout.fragment_work_mate) {
     private lateinit var firebaseData: FirebaseDatabase
     private lateinit var workmatesList: ArrayList<CurrentUser>
     private lateinit var currentUser: CurrentUser
+    private lateinit var storage: StorageReference
 
 
 
@@ -32,36 +36,28 @@ class WorkMateFragment:Fragment(R.layout.fragment_work_mate) {
         recyclerView=view.findViewById(R.id.work_mate_list)
         recyclerView.layoutManager= LinearLayoutManager(activity)
         recyclerView.setHasFixedSize(true)
-        workmatesList= arrayListOf<CurrentUser>()
-        getUserData()
+        workmatesList= arrayListOf()
 
-
-    }
-    private fun setWorkMates(){
-        auth = Firebase.auth
-        auth = FirebaseAuth.getInstance()
-        val name=auth.currentUser?.displayName.toString()
-        val uid=auth.currentUser?.uid.toString()
-        database=FirebaseDatabase.getInstance().getReference("Users")
-        val user=CurrentUser(name,uid)
-        database.child("Users").child(uid).setValue(user)
-
-
-
-    }
-    private fun getUserData(){
-        database.addValueEventListener(object : ValueEventListener {
+        val getData=database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()){
-                    for (UserSnapshot in snapshot.children){
-                        val user=UserSnapshot.child("Users").value.toString()
-                        val user1=CurrentUser(user)
-                        workmatesList.add(user1)
+
+
+                if (snapshot.exists()) {
+
+                    for (i in snapshot.children) {
+
+
+
+                            val id = i.child("id").value.toString()
+                            val name = i.child("name").value.toString()
+                            val user = CurrentUser(name, id)
+
+                            workmatesList.add(user)
+
+
+                            recyclerView.adapter = UserAdapter(workmatesList)
+
                     }
-
-                  recyclerView.adapter= UserAdapter(workmatesList)
-
-
                 }
             }
 
@@ -70,6 +66,33 @@ class WorkMateFragment:Fragment(R.layout.fragment_work_mate) {
             }
 
         })
+        database.addValueEventListener(getData)
+
+
+    }
+    private fun setWorkMates(){
+
+        auth = Firebase.auth
+        auth = FirebaseAuth.getInstance()
+        val name=auth.currentUser?.displayName.toString()
+        val id=auth.currentUser?.uid.toString()
+         database=FirebaseDatabase.getInstance().getReference("Users")
+        database.child(id).setValue(CurrentUser(name,id))
+          try {
+
+           storage = FirebaseStorage.getInstance().getReference("Images")
+        val photo=auth.currentUser?.photoUrl
+        storage.putFile(photo!!).addOnSuccessListener {
+
+        }}catch (e:StorageException){}
+
+
+
     }
 
-}
+
+
+
+    }
+
+

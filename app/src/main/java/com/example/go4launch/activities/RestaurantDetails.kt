@@ -24,21 +24,30 @@ class RestaurantDetails:AppCompatActivity() {
         setContentView(binding.root)
 
         val preferences=getSharedPreferences("myPreferences", MODE_PRIVATE)
+        val editor=preferences.edit()
         val address=preferences.getString("address",null)
         val name=preferences.getString("name",null)
         val website=preferences.getString("website",null)
         val phoneNumber=preferences.getString("phone_number",null)
         val rating=preferences.getFloat("rating",0.0f)
         val myImage=preferences.getString("image",null)
+        val lat= preferences.getString("lat",null)?.toDouble()
+        val lng=preferences.getString("lng",null)?.toDouble()
+
+
 
         binding.fabBook.setOnClickListener {view->
         if (binding.fabBook.isChecked){
-
+            editor.putString("lat",lat.toString())
+            editor.putString("Lng",lng.toString())
+            editor.apply()
+            savedStateRegistry
         }
 
         }
         binding.restaurantImageView.load(myImage)
         binding.detailsRestaurantName.text=name
+
         if (binding.detailsRestaurantName.text.isNotEmpty()){
             binding.like.isVisible
         }
@@ -46,6 +55,7 @@ class RestaurantDetails:AppCompatActivity() {
         binding.btnCall.setOnClickListener {
             val intent=Intent(Intent.ACTION_DIAL)
             intent.data = Uri.parse(phoneNumber)
+
             startActivity(intent)
         }
         binding.btnWebsite.setOnClickListener{
@@ -53,6 +63,7 @@ class RestaurantDetails:AppCompatActivity() {
 
             val intent=Intent(Intent.ACTION_VIEW)
             intent.data= Uri.parse(website)
+
             startActivity(intent)}catch (e:NullPointerException){}
         }
 
