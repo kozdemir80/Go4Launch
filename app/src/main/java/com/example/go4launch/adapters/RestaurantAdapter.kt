@@ -46,9 +46,6 @@ class RestaurantAdapter:RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHol
         holder.rIcon.load(restaurants.icon)
         holder.rNumber.text=restaurants.types[0] }
 
-
-
-
         }catch (e:NullPointerException){}
     }
 
@@ -83,6 +80,5 @@ class RestaurantAdapter:RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHol
 
     val differ= AsyncListDiffer(this,differCallBack)
 }
-
 
 

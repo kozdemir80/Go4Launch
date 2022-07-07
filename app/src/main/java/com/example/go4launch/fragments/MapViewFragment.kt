@@ -7,6 +7,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -322,6 +323,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
                     .title(likelyPlaceNames[which])
                     .position(markerLatLng)
                     .snippet(markerSnippet))
+                mapView?.clear()
 
                 // Position the map's camera at the location of the marker.
                 mapView?.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng,
@@ -362,10 +364,12 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
             activity?.getSharedPreferences("myPreferences",
                 Context.MODE_PRIVATE)
         val editor = preferences?.edit()
+        lastLocation= Location(LocationManager.NETWORK_PROVIDER)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         fusedLocationProviderClient.lastLocation.addOnCompleteListener {
             val currentLat=lastLocation.latitude
             val currentLng=lastLocation.longitude
+
             val rLat = preferences?.getString("lat", null)?.toDouble()
             val rLng = preferences?.getString("lng", null)?.toDouble()
 
@@ -375,6 +379,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
                 mapView?.addMarker(MarkerOptions().position(restaurantLatLng).icon(
                     BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
                 ))
+
             }
             val lat = currentLat
             val lng = currentLng
@@ -397,14 +402,11 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
                 if (response.isSuccessful) {
                     response.body().let { myResponse ->
                         for (i in 0 until myResponse!!.results.size) {
-
-
                             val Lat = myResponse.results[i].geometry.location.lat
                             val Lng = myResponse.results[i].geometry.location.lng
                             val locations = LatLng(Lat, Lng)
                             mapView?.addMarker(MarkerOptions().position(locations).title(
                                 myResponse.results[i].name))
-
                             editor?.putString("phone_number1",
                                 myResponse.results[i].formatted_phone_number)
                             editor?.putString("website", myResponse.results[i].website)

@@ -8,20 +8,33 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.go4launch.R
+import com.example.go4launch.adapters.UserAdapter
 import com.example.go4launch.databinding.RestaurantDetailsActivityBinding
+import com.example.go4launch.model.userdetails.CurrentUser
 import com.like.LikeButton
 import com.like.OnLikeListener
 
+
 class RestaurantDetails:AppCompatActivity() {
       private lateinit var binding: RestaurantDetailsActivityBinding
+      private lateinit var recyclerView: RecyclerView
+      private lateinit var adapter:UserAdapter
+    private lateinit var workmatesList: ArrayList<CurrentUser>
+
     @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.restaurant_details_activity)
         binding = RestaurantDetailsActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        recyclerView=findViewById(R.id.restaurant_attendees_recycler_view)
+        recyclerView.layoutManager= LinearLayoutManager(applicationContext)
+        recyclerView.setHasFixedSize(true)
+        workmatesList= arrayListOf()
 
         val preferences=getSharedPreferences("myPreferences", MODE_PRIVATE)
         val editor=preferences.edit()
@@ -31,17 +44,14 @@ class RestaurantDetails:AppCompatActivity() {
         val phoneNumber=preferences.getString("phone_number",null)
         val rating=preferences.getFloat("rating",0.0f)
         val myImage=preferences.getString("image",null)
-        val lat= preferences.getString("lat",null)?.toDouble()
-        val lng=preferences.getString("lng",null)?.toDouble()
 
-
-
+      
         binding.fabBook.setOnClickListener {view->
         if (binding.fabBook.isChecked){
-            editor.putString("lat",lat.toString())
-            editor.putString("Lng",lng.toString())
+            binding.fabBook.isChecked=true
+            editor.putString("Name",name)
             editor.apply()
-            savedStateRegistry
+
         }
 
         }
@@ -83,4 +93,6 @@ class RestaurantDetails:AppCompatActivity() {
         })
 
     }
-}
+
+
+    }

@@ -16,13 +16,12 @@ import com.example.go4launch.adapters.RestaurantAdapter
 import com.example.go4launch.api.RestaurantRepository
 import com.example.go4launch.viewmodel.ConvertorFactory
 import com.example.go4launch.viewmodel.MapsViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
 
 class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     private lateinit var restaurantAdapter: RestaurantAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var mapsViewModel:MapsViewModel
-    private lateinit var fusedLocationProviderClient:FusedLocationProviderClient
+
 
 
     @SuppressLint("NotifyDataSetChanged", "MissingPermission")
