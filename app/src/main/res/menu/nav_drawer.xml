@@ -6,17 +6,17 @@
         <item
             android:id="@+id/launch"
             android:icon="@drawable/ic_baseline_food_bank_24"
-            android:title="Your Launch"
+            android:title="@string/YourLaunch"
             tools:ignore="HardcodedText" />
         <item
             android:id="@+id/settings"
             android:icon="@drawable/ic_baseline_settings_24"
-            android:title="Settings"
+            android:title="@string/Settings"
             tools:ignore="HardcodedText" />
         <item
             android:id="@+id/logout"
             android:icon="@drawable/ic_baseline_exit_to_app_24"
-            android:title="LogOut"
+            android:title="@string/LogOut"
             tools:ignore="HardcodedText" />
 
 

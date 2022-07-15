@@ -17,7 +17,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:layout_toEndOf="@+id/user_photo"
-        android:text=""
         android:textColor="@color/colorPrimary"
         android:textStyle="bold" />
 

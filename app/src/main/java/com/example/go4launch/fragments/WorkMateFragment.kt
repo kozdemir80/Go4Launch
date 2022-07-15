@@ -16,10 +16,7 @@ import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
 
 class WorkMateFragment:Fragment(R.layout.fragment_work_mate) {
-
-
     private lateinit var recyclerView: RecyclerView
-
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private lateinit var imageView:ImageView
@@ -35,6 +32,7 @@ class WorkMateFragment:Fragment(R.layout.fragment_work_mate) {
         workmatesList= arrayListOf()
         imageView= ImageView(requireContext())
         imageView.findViewById<ImageView>(R.id.imageView)
+
 
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

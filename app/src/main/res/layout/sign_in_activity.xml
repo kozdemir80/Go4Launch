@@ -38,7 +38,7 @@
         android:layout_below="@id/go4"
         android:layout_marginStart="65dp"
         android:layout_marginBottom="100dp"
-        android:text="find_a_nice_restaurant_and_invite_your_coworkers_for_launch"
+        android:text="@string/find_a_nice_restaurant_and_invite_your_coworkers_for_launch"
         android:textColor="@color/browser_actions_bg_grey"
         android:textSize="11sp"
         android:textStyle="bold"

@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">Go4Launch</string>
-    <string name="map_view">Map View</string>
-    <string name="open">Open</string>
-    <string name="close">Close</string>
+    <string name="app_name" translatable="false">Go4Launch</string>
+    <string name="map_view" translatable="false">Map View</string>
+    <string name="open" translatable="false">Open</string>
+    <string name="close" translatable="false">Close</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
-    <string name="sign_in_with_facebook">sign_in_with_facebook</string>
-    <string name="sign_in_with_google">sign_in_with_google</string>
+    <string name="sign_in_with_facebook" translatable="false">sign_in_with_facebook</string>
+    <string name="sign_in_with_google" translatable="false">sign_in_with_google</string>
     <string name="sign_in_with_email" translatable="false">sign_in_with_email</string>
     <string name="logo" translatable="false">logo</string>
     <string name="client_id" translatable="false">"client_id":16539640636-cdfkhpktamgnkbfjmvkgrva30k0nfis9.apps.googleusercontent.com</string>
@@ -23,6 +23,19 @@
     <string name="fb_login_protocol_scheme" translatable="false">fb1241338556615043</string>
     <string name="facebook_client_token" translatable="false">d4d9d2b8e63387cbcfd1403ac78645ca</string>
     <string name="default_notification_channel_id" translatable="false" />
-    <string name="title" />
-    <string name="descrption" />
+    <string name="title" translatable="false" />
+    <string name="descrption" translatable="false" />
+    <string name="is_joining" translatable="false">se une!!</string>
+    <string name="msg_token_fmt" translatable="false" />
+    <string name="restaurantName" translatable="false">Restaurant TDB</string>
+    <string name="restaurantAddress" translatable="false">French restaurant - 17 rue de la gale au dry</string>
+    <string name="CALL" translatable="false">CALL</string>
+    <string name="WEBSITE" translatable="false">WEBSITE</string>
+    <string name="find_a_nice_restaurant_and_invite_your_coworkers_for_launch" translatable="false">find_a_nice_restaurant_and_invite_your_coworkers_for_launch</string>
+    <string name="WorkMates" translatable="false">WorkMates</string>
+    <string name="YourLaunch" translatable="false">YourLaunch</string>
+    <string name="Settings" translatable="false">Settings</string>
+    <string name="LogOut" translatable="false">LogOut</string>
+    <string name="MapView" translatable="false">MapView</string>
+    <string name="ListView" translatable="false">ListView</string>
 </resources>
