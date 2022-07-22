@@ -1,5 +1,6 @@
 package com.example.go4launch.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,22 +31,22 @@ class RestaurantAdapter:RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHol
                 (R.layout.item_restaurant,parent,false),mListener
         )
     }
-
-
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RestaurantViewHolder, position: Int) {
         val restaurants=differ.currentList[position]
 
        try {
-
-       holder.view.apply {
-
+         if (!restaurants.opening_hours.open_now){
+         holder.rTimeTable.text="Open"
+         }else{
+             holder.rTimeTable.text="Closed"}
+        holder.view.apply {
         holder.rName.text=restaurants.name
-        holder.rTimeTable.text= restaurants.opening_hours.open_now.toString()
+
         holder.rAddress.text=restaurants.vicinity
         holder.rRating.rating=restaurants.rating.toFloat()
         holder.rIcon.load(restaurants.icon)
         holder.rNumber.text=restaurants.types[0] }
-
         }catch (e:NullPointerException){}
     }
 

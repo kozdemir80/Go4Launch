@@ -38,4 +38,6 @@
     <string name="LogOut" translatable="false">LogOut</string>
     <string name="MapView" translatable="false">MapView</string>
     <string name="ListView" translatable="false">ListView</string>
+    <string name="is_eating_at">is eating at</string>
+    <string name="search_restaurants" />
 </resources>

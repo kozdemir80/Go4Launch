@@ -109,5 +109,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:20.0.5'
     implementation 'com.google.firebase:firebase-storage:20.0.1'
     implementation 'com.google.mlkit:translate:17.0.0'
+    //noinspection GradleDependency,GradleDynamicVersion
+    implementation 'com.google.maps.android:android-maps-utils:0.5+'
 
 }

@@ -80,15 +80,16 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (toggle.onOptionsItemSelected(item)){
             return true
         }
-            when (item.itemId) {
-                R.id.app_bar_search -> {
+        when (item.itemId) {
+            R.id.app_bar_search -> {
 
-                }
             }
+        }
 
         return super.onOptionsItemSelected(item)
     }

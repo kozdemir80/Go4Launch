@@ -2,12 +2,15 @@ package com.example.go4launch.activities
 
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -16,38 +19,33 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.go4launch.R
 import com.example.go4launch.adapters.AttendeesAdapter
-import com.example.go4launch.api.NotificationInstance
 import com.example.go4launch.constants.Constants.Companion.TOPIC
 import com.example.go4launch.databinding.RestaurantDetailsActivityBinding
 import com.example.go4launch.model.userdetails.CurrentUser
-import com.example.go4launch.model.userdetails.NotificationData
-import com.example.go4launch.model.userdetails.PushNotification
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.like.LikeButton
 import com.like.OnLikeListener
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import java.util.*
 
 
 @Suppress("NAME_SHADOWING")
 class RestaurantDetails:AppCompatActivity() {
       private lateinit var binding: RestaurantDetailsActivityBinding
       private lateinit var recyclerView: RecyclerView
-      private lateinit var adapter:AttendeesAdapter
       private lateinit var attendeesList: ArrayList<CurrentUser>
       private val TAG="RestaurantDetails"
-
+      private lateinit var calendar: Calendar
       private lateinit var auth:FirebaseAuth
-      private lateinit var title:TextView
-      private lateinit var message:TextView
+      private lateinit var alarmManager:AlarmManager
+    private lateinit var database: DatabaseReference
 
 
-
+    @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("ResourceAsColor", "StringFormatInvalid")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,40 +79,46 @@ class RestaurantDetails:AppCompatActivity() {
         val editor = preferences.edit()
         val address1 = preferences.getString("address", null)
         val name1 = preferences.getString("name", null)
-
         val website = preferences.getString("website", null)
         val phoneNumber = preferences.getString("phone_number", null)
-        val rating = preferences.getFloat("rating", 0.0f)
         val myImage = preferences.getString("image", null)
 
 
         binding.fabBook.setOnClickListener { view ->
             if (binding.fabBook.isChecked) {
                 binding.fabBook.isChecked = true
-
-
                     editor.putString("Name", name1)
                     editor.apply()
-                    auth = Firebase.auth
-                    auth = FirebaseAuth.getInstance()
-                    val name = auth.currentUser?.displayName
-                    val photo = auth.currentUser?.photoUrl.toString()
-                    val id = auth.currentUser?.uid
-                    val user = CurrentUser(name, id, photo)
-                    attendeesList.add(user)
-                    recyclerView.adapter = AttendeesAdapter(attendeesList)
+                auth= Firebase.auth
+                auth= FirebaseAuth.getInstance()
+                database = FirebaseDatabase.getInstance().getReference("Users")
+                database.addValueEventListener(object : ValueEventListener {
+                    @SuppressLint("SetTextI18n")
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) {
+                            for (i in snapshot.children) {
+                              val user=i.getValue(CurrentUser::class.java)
+                                 if(user != null) {
+                                     if (user.restaurantId==name1) {
+                                         attendeesList.add(user)
 
+                                     }
+                                 }
+                                recyclerView.adapter = AttendeesAdapter(attendeesList)
+                                setAlarm()}
 
-                        PushNotification(
-                            NotificationData(name1, address1),
-                            TOPIC
-
-                        ).also {
-                            sendNotification(it)
+                            }
                         }
 
-                 savedStateRegistry
-            }
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+                })
+
+
+                        savedStateRegistry
+                    }
+
         }
         binding.restaurantImageView.load(myImage)
         binding.detailsRestaurantName.text = name1
@@ -148,26 +152,27 @@ class RestaurantDetails:AppCompatActivity() {
                     binding.like.isInvisible
                 }
             }
-
             override fun unLiked(likeButton: LikeButton?) {
                 binding.like.isInvisible
             }
-
         })
-
     }
-
-    private fun sendNotification(notification:PushNotification)= CoroutineScope(Dispatchers.IO).launch {
-        try {
-           val response=NotificationInstance.api.postNotification(notification)
-            if (response.isSuccessful){
-
-            }else{
-                Log.e(TAG,response.errorBody().toString())
-            }
-        }catch (e:Exception){
-            Log.e(TAG,e.toString())
-        }
+    @SuppressLint("ShortAlarm")
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun setAlarm() {
+        calendar= Calendar.getInstance()
+        calendar[Calendar.DAY_OF_WEEK]
+        calendar[Calendar.HOUR]
+        calendar[Calendar.SECOND]
+        calendar[Calendar.MILLISECOND]
+        alarmManager=getSystemService(ALARM_SERVICE) as AlarmManager
+        val intent=Intent(this, AlarmReciever::class.java)
+        val pendingIntent= PendingIntent.getBroadcast(
+            this,
+            0,
+            intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT)
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,calendar.timeInMillis,
+            AlarmManager.INTERVAL_DAY,pendingIntent)
+        savedStateRegistry
     }
-
     }

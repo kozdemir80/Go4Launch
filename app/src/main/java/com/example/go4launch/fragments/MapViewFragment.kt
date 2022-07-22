@@ -10,19 +10,21 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.SearchView
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
 import com.example.go4launch.BuildConfig.MAPS_API_KEY
 import com.example.go4launch.R
 import com.example.go4launch.activities.RestaurantDetails
-import com.example.go4launch.adapters.RestaurantAdapter
 import com.example.go4launch.api.RestaurantRepository
+import com.example.go4launch.api.SearchRepository
 import com.example.go4launch.viewmodel.ConvertorFactory
 import com.example.go4launch.viewmodel.MapsViewModel
+import com.example.go4launch.viewmodel.SearchConvertorFactory
+import com.example.go4launch.viewmodel.SearchViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -35,6 +37,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.maps.android.SphericalUtil
 
 @Suppress("DEPRECATION")
 class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,GoogleMap.OnMarkerClickListener {
@@ -43,28 +46,19 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
     private lateinit var lastLocation: Location
     private lateinit var placesClient: PlacesClient
     private var cameraPosition: CameraPosition? = null
-
-
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
     companion object {
         private const val KEY_CAMERA_POSITION = "camera_position"
         private const val KEY_LOCATION = "location"
-        private const val TAG = "myLocation"
-        private const val DEFAULT_ZOOM = 15
+        const val TAG = "myLocation"
+        const val DEFAULT_ZOOM = 15
         private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
-
     }
-
     private lateinit var mapsViewModel: MapsViewModel
-
+    private lateinit var searchRestaurants:SearchView
+    private lateinit var searchViewModel:SearchViewModel
     private val defaultLocation = LatLng(37.076526, 36.242001)
     private var locationPermissionGranted = false
-    private lateinit var rAdapter: RestaurantAdapter
-
-    private lateinit var recyclerView: RecyclerView
-
-
     @SuppressLint("MissingPermission", "PotentialBehaviorOverride")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -100,7 +94,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
     }
 
 
-
     @SuppressLint("PotentialBehaviorOverride")
     override fun onMapReady(map: GoogleMap) {
         this.mapView = map
@@ -130,6 +123,8 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
         getLocationPermission()
         getDeviceLocation()
         nearByRestaurants()
+        searchRestaurants()
+
 
     }
 
@@ -146,6 +141,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
                 locationResult.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         // Set the map's camera position to the current location of the device.
+                        lastLocation = Location(LocationManager.NETWORK_PROVIDER)
                         lastLocation = task.result
                         mapView?.moveCamera(CameraUpdateFactory.newLatLngZoom(
                             LatLng(lastLocation.latitude,
@@ -211,36 +207,35 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
     }
 
 
-
-
     @SuppressLint("PotentialBehaviorOverride", "MissingPermission")
-       private fun nearByRestaurants() {
+    private fun nearByRestaurants() {
+        searchRestaurants = SearchView(requireContext())
+        searchRestaurants.findViewById<SearchView>(R.id.query_term)
         val preferences =
             activity?.getSharedPreferences("myPreferences",
                 Context.MODE_PRIVATE)
         val editor = preferences?.edit()
-        lastLocation= Location(LocationManager.NETWORK_PROVIDER)
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        lastLocation = Location(LocationManager.NETWORK_PROVIDER)
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireActivity())
         fusedLocationProviderClient.lastLocation.addOnCompleteListener {
-            val currentLat=lastLocation.latitude
-            val currentLng=lastLocation.longitude
 
+            val currentLat = lastLocation.latitude
+            val currentLng = lastLocation.longitude
+            val currentLocation = LatLng(currentLat, currentLng)
+            editor?.putString("currentLat", lastLocation.latitude.toString())
+            editor?.putString("currentLng", lastLocation.longitude.toString())
 
-            val lat = currentLat
-            val lng = currentLng
             val apikey = MAPS_API_KEY
-            val locLat = lat
-            val locLng = lng
             val type = "restaurant"
             val radius = 1000
             val repository = RestaurantRepository()
             val convertorFactory = ConvertorFactory(repository)
             mapsViewModel = MapsViewModel(repository)
             mapsViewModel =
-                ViewModelProvider(this, convertorFactory).get(mapsViewModel::class.java)
-
+                ViewModelProvider(this, convertorFactory)[mapsViewModel::class.java]
             mapsViewModel.getRestaurantDetails(key = apikey,
-                loc = "${locLat},${locLng}",
+                loc = "$currentLat,$currentLng",
                 type = type,
                 radius = radius.toString())
             mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
@@ -251,25 +246,25 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
                             val Lat = myResponse.results[i].geometry.location.lat
                             val Lng = myResponse.results[i].geometry.location.lng
                             val locations = LatLng(Lat, Lng)
-                             mapView?.addMarker(MarkerOptions().position(locations).title(
+                            mapView?.addMarker(MarkerOptions().position(locations).title(
                                 myResponse.results[i].name))
-                                    editor?.putString("phone_number1",
-                                        myResponse.results[i].formatted_phone_number)
-                                    editor?.putString("website", myResponse.results[i].website)
-                                    editor?.putFloat("rating",
-                                        myResponse.results[i].rating.toFloat())
-                                    editor?.putString("name", myResponse.results[i].name)
+                            val distance =
+                                SphericalUtil.computeDistanceBetween(currentLocation, locations)
+                            editor?.putString("distance", distance.toString())
+                            editor?.putString("phone_number1",
+                                myResponse.results[i].formatted_phone_number)
+                            editor?.putFloat("rating",
+                                myResponse.results[i].rating.toFloat())
+                            editor?.putString("name", myResponse.results[i].name)
 
-                                    editor?.putString("address", myResponse.results[i].vicinity)
-                                    editor?.putString("image", myResponse.results[i].icon)
-                                    editor?.putString("lat",
-                                        myResponse.results[i].geometry.location.lat.toString())
-                                    editor?.putString("lng",
-                                        myResponse.results[i].geometry.location.lng.toString())
-                                    editor?.apply()
-
-
-
+                            editor?.putString("address",
+                                myResponse.results[i].vicinity)
+                            editor?.putString("image", myResponse.results[i].icon)
+                            editor?.putString("lat",
+                                myResponse.results[i].geometry.location.lat.toString())
+                            editor?.putString("lng",
+                                myResponse.results[i].geometry.location.lng.toString())
+                            editor?.apply()
                         }
                     }
                 }
@@ -277,11 +272,64 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
         }
     }
 
-    override fun onMarkerClick(p0: Marker): Boolean {
-        val intent = Intent(requireContext(), RestaurantDetails::class.java)
-        startActivity(intent)
-        return false
+    @SuppressLint("MissingPermission")
+    private fun searchRestaurants(){
+        searchRestaurants = SearchView(requireContext())
+        searchRestaurants.findViewById<SearchView>(R.id.query_term)
+        lastLocation = Location(LocationManager.NETWORK_PROVIDER)
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedLocationProviderClient.lastLocation.addOnCompleteListener {
+            searchRestaurants.setOnQueryTextFocusChangeListener(object :
+               SearchView.OnQueryTextListener,
+                View.OnFocusChangeListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    val currentLat = lastLocation.latitude
+                    val currentLng = lastLocation.longitude
+                    val apikey = MAPS_API_KEY
+                    val type = "restaurant"
+                    val radius = 1000
+                    val keyword="$query"
+
+                    val repository=SearchRepository()
+                    val searchConvertorFactory=SearchConvertorFactory(repository)
+
+                    searchViewModel= SearchViewModel(repository)
+                    searchViewModel= ViewModelProvider(this@MapViewFragment,searchConvertorFactory)[SearchViewModel::class.java]
+                    searchViewModel.searchRestaurants(loc = "$currentLat,$currentLng", type = type,
+                    key = apikey, radius = radius.toString(), keyword = keyword)
+                    searchViewModel.myResponse.observe(viewLifecycleOwner){response->
+                        if (response.isSuccessful){
+                            response.body().let { searchResponse->
+
+
+                            }
+                        }
+                    }
+
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    return false
+                }
+
+                override fun onFocusChange(v: View?, hasFocus: Boolean) {
+
+                }
+
+            })
+        }
     }
-}
+
+        override fun onMarkerClick(marker: Marker): Boolean {
+          val intent=Intent(activity ,RestaurantDetails::class.java)
+            startActivity(intent)
+
+            return false
+        }
+
+    }
+
 
 

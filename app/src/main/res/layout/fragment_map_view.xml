@@ -19,19 +19,17 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:context="com.example.currentplacedetailsonmap.MapsActivityCurrentPlace" />
 
-    <fragment
-        android:id="@+id/autocomplete_fragment"
-        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+    <EditText
+        android:id="@+id/query_term"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_marginTop="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:hint="@string/search_restaurants"
 
-
-
-
+        android:padding="20dp"
+        tools:ignore="MissingConstraints,TextContrastCheck,TextFields"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
