@@ -39,6 +39,7 @@
             android:layout_marginRight="10dp"
             android:text="@string/descrption"
             android:textSize="12sp" />
+
     </RelativeLayout>
 
 

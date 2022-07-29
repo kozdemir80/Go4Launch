@@ -1,6 +1,7 @@
 package com.example.go4launch.fragments
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,7 +11,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.SearchView
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -20,10 +20,8 @@ import com.example.go4launch.BuildConfig.MAPS_API_KEY
 import com.example.go4launch.R
 import com.example.go4launch.activities.RestaurantDetails
 import com.example.go4launch.api.RestaurantRepository
-import com.example.go4launch.api.SearchRepository
 import com.example.go4launch.viewmodel.ConvertorFactory
 import com.example.go4launch.viewmodel.MapsViewModel
-import com.example.go4launch.viewmodel.SearchConvertorFactory
 import com.example.go4launch.viewmodel.SearchViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -36,17 +34,23 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.RectangularBounds
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.maps.android.SphericalUtil
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteActivity
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 
 @Suppress("DEPRECATION")
-class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,GoogleMap.OnMarkerClickListener {
+class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback {
 
     private var mapView: GoogleMap? = null
     private lateinit var lastLocation: Location
     private lateinit var placesClient: PlacesClient
     private var cameraPosition: CameraPosition? = null
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
     companion object {
         private const val KEY_CAMERA_POSITION = "camera_position"
         private const val KEY_LOCATION = "location"
@@ -54,11 +58,14 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
         const val DEFAULT_ZOOM = 15
         private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
     }
+
     private lateinit var mapsViewModel: MapsViewModel
-    private lateinit var searchRestaurants:SearchView
-    private lateinit var searchViewModel:SearchViewModel
+    private lateinit var searchViewModel: SearchViewModel
     private val defaultLocation = LatLng(37.076526, 36.242001)
     private var locationPermissionGranted = false
+    private val AUTOCOMPLETE_REQUEST_CODE = 1
+
+
     @SuppressLint("MissingPermission", "PotentialBehaviorOverride")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -118,16 +125,16 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
                 return infoWindow
             }
         })
-        mapView?.setOnMarkerClickListener(this)
+        mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener {
+            return@OnMarkerClickListener false
+        })
         // Prompt the user for permission.
         getLocationPermission()
         getDeviceLocation()
-        nearByRestaurants()
         searchRestaurants()
-
+        nearByRestaurants()
 
     }
-
 
     @SuppressLint("MissingPermission")
     private fun getDeviceLocation() {
@@ -209,8 +216,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
 
     @SuppressLint("PotentialBehaviorOverride", "MissingPermission")
     private fun nearByRestaurants() {
-        searchRestaurants = SearchView(requireContext())
-        searchRestaurants.findViewById<SearchView>(R.id.query_term)
         val preferences =
             activity?.getSharedPreferences("myPreferences",
                 Context.MODE_PRIVATE)
@@ -222,7 +227,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
 
             val currentLat = lastLocation.latitude
             val currentLng = lastLocation.longitude
-            val currentLocation = LatLng(currentLat, currentLng)
             editor?.putString("currentLat", lastLocation.latitude.toString())
             editor?.putString("currentLng", lastLocation.longitude.toString())
 
@@ -241,31 +245,43 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
             mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
                 if (response.isSuccessful) {
                     response.body().let { myResponse ->
-                        for (i in 0 until myResponse!!.results.size) {
+                       for (i in 0 until myResponse!!.results.size){
+
+
 
                             val Lat = myResponse.results[i].geometry.location.lat
                             val Lng = myResponse.results[i].geometry.location.lng
                             val locations = LatLng(Lat, Lng)
                             mapView?.addMarker(MarkerOptions().position(locations).title(
-                                myResponse.results[i].name))
-                            val distance =
-                                SphericalUtil.computeDistanceBetween(currentLocation, locations)
-                            editor?.putString("distance", distance.toString())
-                            editor?.putString("phone_number1",
-                                myResponse.results[i].formatted_phone_number)
-                            editor?.putFloat("rating",
-                                myResponse.results[i].rating.toFloat())
-                            editor?.putString("name", myResponse.results[i].name)
+                                myResponse.results[i].name))  }
+                            mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener { marker ->
 
-                            editor?.putString("address",
-                                myResponse.results[i].vicinity)
-                            editor?.putString("image", myResponse.results[i].icon)
-                            editor?.putString("lat",
-                                myResponse.results[i].geometry.location.lat.toString())
-                            editor?.putString("lng",
-                                myResponse.results[i].geometry.location.lng.toString())
-                            editor?.apply()
-                        }
+
+
+                                    editor?.putString("phone_number1",
+                                        myResponse.results[marker.zIndex.toInt()].formatted_phone_number)
+                                    editor?.putFloat("rating",
+                                        myResponse.results[marker.zIndex.toInt()].rating.toFloat())
+                                    editor?.putString("name",
+                                        myResponse.results[marker.zIndex.toInt()].name)
+                                    editor?.putString("address",
+                                        myResponse.results[marker.zIndex.toInt()].vicinity)
+                                    editor?.putString("image",
+                                        myResponse.results[marker.zIndex.toInt()].icon)
+                                    editor?.putString("lat",
+                                        myResponse.results[marker.zIndex.toInt()].geometry.location.lat.toString())
+                                    editor?.putString("lng",
+                                        myResponse.results[marker.zIndex.toInt()].geometry.location.lng.toString())
+                                    editor?.apply()
+                                    val intent =
+                                        Intent(requireContext(), RestaurantDetails::class.java)
+                                    startActivity(intent)
+
+                                    return@OnMarkerClickListener false
+
+                            })
+
+
                     }
                 }
             }
@@ -273,63 +289,53 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback,
     }
 
     @SuppressLint("MissingPermission")
-    private fun searchRestaurants(){
-        searchRestaurants = SearchView(requireContext())
-        searchRestaurants.findViewById<SearchView>(R.id.query_term)
+    private fun searchRestaurants() {
+        mapView?.clear()
+
+
+        val autocompleteFragment =
+            childFragmentManager.findFragmentById(R.id.autocomplete_fragment)
+                    as AutocompleteSupportFragment
         lastLocation = Location(LocationManager.NETWORK_PROVIDER)
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
-        fusedLocationProviderClient.lastLocation.addOnCompleteListener {
-            searchRestaurants.setOnQueryTextFocusChangeListener(object :
-               SearchView.OnQueryTextListener,
-                View.OnFocusChangeListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    val currentLat = lastLocation.latitude
-                    val currentLng = lastLocation.longitude
-                    val apikey = MAPS_API_KEY
-                    val type = "restaurant"
-                    val radius = 1000
-                    val keyword="$query"
 
-                    val repository=SearchRepository()
-                    val searchConvertorFactory=SearchConvertorFactory(repository)
+        autocompleteFragment.setLocationBias(RectangularBounds.newInstance(
+            LatLng(lastLocation.latitude, lastLocation.longitude),
+            LatLng(lastLocation.latitude, lastLocation.longitude)
+        ))
+        autocompleteFragment.setCountries("US")
+        val fields = listOf(Place.Field.ID, Place.Field.NAME)
+        val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+            .build(requireContext())
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE)
 
-                    searchViewModel= SearchViewModel(repository)
-                    searchViewModel= ViewModelProvider(this@MapViewFragment,searchConvertorFactory)[SearchViewModel::class.java]
-                    searchViewModel.searchRestaurants(loc = "$currentLat,$currentLng", type = type,
-                    key = apikey, radius = radius.toString(), keyword = keyword)
-                    searchViewModel.myResponse.observe(viewLifecycleOwner){response->
-                        if (response.isSuccessful){
-                            response.body().let { searchResponse->
+    }
 
 
-                            }
-                        }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            when (resultCode) {
+                Activity.RESULT_OK -> {
+                    data?.let {
+                        val place = Autocomplete.getPlaceFromIntent(data)
+                        Log.i(TAG, "Place: ${place.name}, ${place.id}")
                     }
-
-                    return false
                 }
-
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    return false
+                AutocompleteActivity.RESULT_ERROR -> {
+                    // TODO: Handle the error.
+                    data?.let {
+                        val status = Autocomplete.getStatusFromIntent(data)
+                        Log.i(TAG, status.statusMessage ?: "")
+                    }
                 }
-
-                override fun onFocusChange(v: View?, hasFocus: Boolean) {
-
+                Activity.RESULT_CANCELED -> {
+                    // The user canceled the operation.
                 }
-
-            })
+            }
+            return
         }
+        super.onActivityResult(requestCode, resultCode, data)
     }
-
-        override fun onMarkerClick(marker: Marker): Boolean {
-          val intent=Intent(activity ,RestaurantDetails::class.java)
-            startActivity(intent)
-
-            return false
-        }
-
-    }
-
-
+}
 

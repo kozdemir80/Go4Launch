@@ -1,6 +1,7 @@
 package com.example.go4launch.adapters
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.go4launch.R
 import com.example.go4launch.model.restaturantDetails.Result
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.ktx.utils.sphericalDistance
 
 class RestaurantAdapter:RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHolder>(){
 
@@ -24,7 +27,6 @@ class RestaurantAdapter:RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHol
     fun setOnItemClickListener(listener:onItemClickListener) {
         mListener = listener
     }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RestaurantViewHolder {
         return RestaurantViewHolder(
             LayoutInflater.from(parent.context).inflate
@@ -34,6 +36,15 @@ class RestaurantAdapter:RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHol
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RestaurantViewHolder, position: Int) {
         val restaurants=differ.currentList[position]
+        val preferences=holder.itemView.context.getSharedPreferences("myPreferences",Context.MODE_PRIVATE)
+        val lat=preferences.getString("currentLat",null)
+        val lng=preferences.getString("currentLng",null)
+        val latLng=LatLng(lat!!.toDouble(),lng!!.toDouble())
+        val restaurantLat=restaurants.geometry.location.lat
+        val restaurantLng=restaurants.geometry.location.lng
+        val restaurantLatLng=LatLng(restaurantLat,restaurantLng)
+        val distance=latLng.sphericalDistance(restaurantLatLng).toInt()
+
 
        try {
          if (!restaurants.opening_hours.open_now){
@@ -42,9 +53,9 @@ class RestaurantAdapter:RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHol
              holder.rTimeTable.text="Closed"}
         holder.view.apply {
         holder.rName.text=restaurants.name
-
         holder.rAddress.text=restaurants.vicinity
         holder.rRating.rating=restaurants.rating.toFloat()
+        holder.rDistance.text=distance.toString()
         holder.rIcon.load(restaurants.icon)
         holder.rNumber.text=restaurants.types[0] }
         }catch (e:NullPointerException){}
@@ -80,6 +91,7 @@ class RestaurantAdapter:RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHol
     }
 
     val differ= AsyncListDiffer(this,differCallBack)
+
 }
 
 

@@ -31,15 +31,16 @@ class MyFirebaseMessagingService:FirebaseMessagingService() {
         notificationChannel(notificationManager)
         val remoteViews= RemoteViews("com.example.go4launch",R.layout.natification_layout)
         remoteViews.setTextViewText(R.id.notificationTitleTV,message.data["title"])
-        remoteViews.setTextViewText(R.id.notificationDescTV,message.data["message"])
+        remoteViews.setTextViewText(R.id.notificationDescTV,message.data["message"].plus("user"))
         remoteViews.setImageViewResource(R.id.notificationLogoIV,R.drawable.soup)
 
         val pendingIntent=PendingIntent.getActivity(this,0,intent, FLAG_IMMUTABLE)
       val notification=NotificationCompat.Builder(this,channelId)
           .setContentTitle(message.data["title"])
-          .setContentText(message.data["message"])
+          .setContentText(message.data["message"].plus("user"))
           .setSmallIcon(R.drawable.soup)
           .setAutoCancel(true)
+          .setOnlyAlertOnce(true)
           .setContentIntent(pendingIntent)
           .build()
 

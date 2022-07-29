@@ -14,7 +14,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
-
 class WorkMateFragment:Fragment(R.layout.fragment_work_mate) {
     private lateinit var recyclerView: RecyclerView
     private lateinit var auth: FirebaseAuth

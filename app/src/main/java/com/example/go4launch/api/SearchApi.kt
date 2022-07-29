@@ -6,13 +6,13 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface SearchApi {
-    @GET("place/autocomplete/json")
-    suspend fun currentRestaurant(
+
+    @GET("nearbysearch/json?")
+    suspend fun getAllNearbyRest(
         @Query("location") loc: String?,
         @Query("type") type: String?,
         @Query("key") key: String?,
-        @Query("radius") radius:String?,
-        @Query("keyword") keyword:String?
-
+        @Query("radius") radius: String?,
+        @Query("keyword") keyword: String?,
     ): Response<RestaurantDetails>
 }

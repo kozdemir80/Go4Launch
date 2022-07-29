@@ -43,8 +43,6 @@ class RestaurantDetails:AppCompatActivity() {
       private lateinit var auth:FirebaseAuth
       private lateinit var alarmManager:AlarmManager
     private lateinit var database: DatabaseReference
-
-
     @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("ResourceAsColor", "StringFormatInvalid")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,43 +80,38 @@ class RestaurantDetails:AppCompatActivity() {
         val website = preferences.getString("website", null)
         val phoneNumber = preferences.getString("phone_number", null)
         val myImage = preferences.getString("image", null)
-
-
         binding.fabBook.setOnClickListener { view ->
             if (binding.fabBook.isChecked) {
                 binding.fabBook.isChecked = true
-                    editor.putString("Name", name1)
-                    editor.apply()
-                auth= Firebase.auth
-                auth= FirebaseAuth.getInstance()
+                editor.putString("Name", name1)
+                editor.apply()
+                auth = Firebase.auth
+                auth = FirebaseAuth.getInstance()
                 database = FirebaseDatabase.getInstance().getReference("Users")
                 database.addValueEventListener(object : ValueEventListener {
                     @SuppressLint("SetTextI18n")
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
                             for (i in snapshot.children) {
-                              val user=i.getValue(CurrentUser::class.java)
-                                 if(user != null) {
-                                     if (user.restaurantId==name1) {
-                                         attendeesList.add(user)
+                                val user = i.getValue(CurrentUser::class.java)
+                                if (user != null) {
+                                    if (user.Id == auth.currentUser!!.uid) {
+                                        attendeesList.add(user)
 
-                                     }
-                                 }
+                                    }
+                                }
                                 recyclerView.adapter = AttendeesAdapter(attendeesList)
-                                setAlarm()}
-
+                                setAlarm()
                             }
                         }
+                    }
 
                     override fun onCancelled(error: DatabaseError) {
                         TODO("Not yet implemented")
                     }
                 })
-
-
-                        savedStateRegistry
-                    }
-
+                savedStateRegistry
+            }
         }
         binding.restaurantImageView.load(myImage)
         binding.detailsRestaurantName.text = name1
@@ -130,12 +123,10 @@ class RestaurantDetails:AppCompatActivity() {
         binding.btnCall.setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL)
             intent.data = Uri.parse(phoneNumber)
-
             startActivity(intent)
         }
         binding.btnWebsite.setOnClickListener {
             try {
-
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = Uri.parse(website)
 
@@ -143,7 +134,6 @@ class RestaurantDetails:AppCompatActivity() {
             } catch (e: NullPointerException) {
             }
         }
-
         binding.btnLike.setOnLikeListener(object : OnLikeListener {
             override fun liked(likeButton: LikeButton?) {
                 if (binding.btnLike.isLiked) {
@@ -152,6 +142,7 @@ class RestaurantDetails:AppCompatActivity() {
                     binding.like.isInvisible
                 }
             }
+
             override fun unLiked(likeButton: LikeButton?) {
                 binding.like.isInvisible
             }
@@ -161,10 +152,10 @@ class RestaurantDetails:AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     private fun setAlarm() {
         calendar= Calendar.getInstance()
-        calendar[Calendar.DAY_OF_WEEK]
-        calendar[Calendar.HOUR]
-        calendar[Calendar.SECOND]
-        calendar[Calendar.MILLISECOND]
+        calendar.set(Calendar.DAY_OF_WEEK,0)
+        calendar.set(Calendar.PM,12)
+        calendar.set(Calendar.SECOND,0)
+        calendar.set(Calendar.MILLISECOND,0)
         alarmManager=getSystemService(ALARM_SERVICE) as AlarmManager
         val intent=Intent(this, AlarmReciever::class.java)
         val pendingIntent= PendingIntent.getBroadcast(
@@ -176,3 +167,7 @@ class RestaurantDetails:AppCompatActivity() {
         savedStateRegistry
     }
     }
+
+private fun Intent.putStringArrayListExtra(s: String, currentUser: CurrentUser) {
+
+}

@@ -1,14 +1,11 @@
 package com.example.go4launch.fragments
 import android.annotation.SuppressLint
-import android.content.ContentValues.TAG
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,34 +17,30 @@ import com.example.go4launch.adapters.RestaurantAdapter
 import com.example.go4launch.api.RestaurantRepository
 import com.example.go4launch.viewmodel.ConvertorFactory
 import com.example.go4launch.viewmodel.MapsViewModel
-import com.example.go4launch.viewmodel.SearchViewModel
 import com.google.android.gms.common.api.Status
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 
-@Suppress("NAME_SHADOWING")
+@Suppress("NAME_SHADOWING", "DEPRECATION")
 class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     private lateinit var restaurantAdapter: RestaurantAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var mapsViewModel: MapsViewModel
-    private lateinit var searchViewModel: SearchViewModel
-    private lateinit var lastLocation: Location
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private lateinit var searchView: EditText
-    private lateinit var searchButton:Button
-    private val AUTOCOMPLETE_REQUEST_CODE = 1
+    private var autocomplete:ArrayList<Any> = ArrayList()
+    private lateinit var restaurantList:ArrayList<com.example.go4launch.model.restaturantDetails.RestaurantDetails>
+
     @SuppressLint("NotifyDataSetChanged", "MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        searchResults()
         recyclerView = view.findViewById(R.id.list_recyclerView)
         restaurantAdapter = RestaurantAdapter()
         recyclerView.adapter = restaurantAdapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.setHasFixedSize(true)
         restaurantAdapter.notifyDataSetChanged()
-
+        restaurantList = arrayListOf()
         val preferences = activity?.getSharedPreferences("myPreferences", Context.MODE_PRIVATE)
         val lng = preferences?.getString("currentLng", null)
         val lat = preferences?.getString("currentLat", null)
@@ -98,6 +91,11 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                 }
             }
         }
+
+
+    }
+    private fun searchResults() {
+        autocomplete = ArrayList()
         val autocompleteFragment =
             childFragmentManager.findFragmentById(R.id.autocomplete_fragment)
                     as AutocompleteSupportFragment
@@ -107,19 +105,14 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
                 // TODO: Get info about the selected place.
-                Log.i(TAG, "Place: ${place.name}, ${place.id}")
+                Log.i(ContentValues.TAG, "Place: ${place.name}, ${place.id}")
 
             }
 
             override fun onError(status: Status) {
                 // TODO: Handle the error.
-                Log.i(TAG, "An error occurred: $status")
+                Log.i(ContentValues.TAG, "An error occurred: $status")
             }
         })
-        }
-
     }
-
-
-
-
+    }

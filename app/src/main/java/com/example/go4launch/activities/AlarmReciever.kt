@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 @Suppress("NAME_SHADOWING")
 class AlarmReciever:BroadcastReceiver(){
     private val TAG="RestaurantDetails"
+
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onReceive(context: Context?, intent: Intent?) {
         val intent=Intent(context,MyFirebaseMessagingService::class.java)
@@ -25,6 +26,7 @@ class AlarmReciever:BroadcastReceiver(){
         val preferences = context?.getSharedPreferences("myPreferences", AppCompatActivity.MODE_PRIVATE)
         val address1 = preferences?.getString("address", null)
         val name1 = preferences?.getString("name", null)
+
         PushNotification(
 
             NotificationData(name1, address1),
