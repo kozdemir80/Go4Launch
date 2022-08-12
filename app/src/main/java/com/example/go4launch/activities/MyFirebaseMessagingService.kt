@@ -19,34 +19,33 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlin.random.Random
 
+@SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class MyFirebaseMessagingService:FirebaseMessagingService() {
-
     @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("UnspecifiedImmutableFlag")
     override fun onMessageReceived(message: RemoteMessage) {
-      val intent= Intent(this,RestaurantDetails::class.java)
-      val notificationManager=getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-      val notificationId= Random.nextInt()
-      intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+
+        val intent= Intent(this,RestaurantDetails::class.java)
+        val notificationManager=getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationId= Random.nextInt()
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         notificationChannel(notificationManager)
         val remoteViews= RemoteViews("com.example.go4launch",R.layout.natification_layout)
         remoteViews.setTextViewText(R.id.notificationTitleTV,message.data["title"])
-        remoteViews.setTextViewText(R.id.notificationDescTV,message.data["message"].plus("user"))
+        remoteViews.setTextViewText(R.id.notificationDescTV,message.data["message"])
+        remoteViews.setTextViewText(R.id.userList,message.data["userList"])
         remoteViews.setImageViewResource(R.id.notificationLogoIV,R.drawable.soup)
 
         val pendingIntent=PendingIntent.getActivity(this,0,intent, FLAG_IMMUTABLE)
-      val notification=NotificationCompat.Builder(this,channelId)
-          .setContentTitle(message.data["title"])
-          .setContentText(message.data["message"].plus("user"))
+        val notification=NotificationCompat.Builder(this,channelId)
+          .setContentTitle(message.data["userList"])
+          .setContentText(message.data["message"] + " " + " ," + message.data["title"])
           .setSmallIcon(R.drawable.soup)
           .setAutoCancel(true)
           .setOnlyAlertOnce(true)
           .setContentIntent(pendingIntent)
           .build()
-
         notificationManager.notify(notificationId,notification)
-
-
     }
     private fun notificationChannel(notificationManager: NotificationManager){
         val channelName="channelName"
@@ -60,10 +59,5 @@ class MyFirebaseMessagingService:FirebaseMessagingService() {
             TODO("VERSION.SDK_INT < O")
         }
         notificationManager.createNotificationChannel(channel)
-
     }
-
-
-
-
 }

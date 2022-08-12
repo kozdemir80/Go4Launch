@@ -32,7 +32,6 @@ import com.like.LikeButton
 import com.like.OnLikeListener
 import java.util.*
 
-
 @Suppress("NAME_SHADOWING")
 class RestaurantDetails:AppCompatActivity() {
       private lateinit var binding: RestaurantDetailsActivityBinding
@@ -42,37 +41,35 @@ class RestaurantDetails:AppCompatActivity() {
       private lateinit var calendar: Calendar
       private lateinit var auth:FirebaseAuth
       private lateinit var alarmManager:AlarmManager
-    private lateinit var database: DatabaseReference
+      private lateinit var database: DatabaseReference
+      private lateinit var userList: ArrayList<CurrentUser>
+
+
     @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("ResourceAsColor", "StringFormatInvalid")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.restaurant_details_activity)
         setContentView(R.layout.natification_layout)
-
         binding = RestaurantDetailsActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         recyclerView = findViewById(R.id.restaurant_attendees_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(applicationContext)
         recyclerView.setHasFixedSize(true)
         attendeesList = arrayListOf()
-
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
             if (!task.isSuccessful) {
                 Log.w(TAG, "Fetching FCM registration token failed", task.exception)
                 return@OnCompleteListener
             }
-
             // Get new FCM registration token
             val token = task.result
-
             // Log and toast
             val msg = getString(R.string.msg_token_fmt, token)
             Log.d(TAG, msg)
             Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
         })
         FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
-
         val preferences = getSharedPreferences("myPreferences", MODE_PRIVATE)
         val editor = preferences.edit()
         val address1 = preferences.getString("address", null)
@@ -80,11 +77,13 @@ class RestaurantDetails:AppCompatActivity() {
         val website = preferences.getString("website", null)
         val phoneNumber = preferences.getString("phone_number", null)
         val myImage = preferences.getString("image", null)
+        intent.getStringExtra("restaurantId")
+        Log.d("myId",intent.getStringExtra("restaurantId").toString())
         binding.fabBook.setOnClickListener { view ->
             if (binding.fabBook.isChecked) {
                 binding.fabBook.isChecked = true
                 editor.putString("Name", name1)
-                editor.apply()
+
                 auth = Firebase.auth
                 auth = FirebaseAuth.getInstance()
                 database = FirebaseDatabase.getInstance().getReference("Users")
@@ -97,7 +96,12 @@ class RestaurantDetails:AppCompatActivity() {
                                 if (user != null) {
                                     if (user.Id == auth.currentUser!!.uid) {
                                         attendeesList.add(user)
+                                        userList= ArrayList()
+                                        val userList= userList.add(user)
 
+
+                                        editor.putString("user", userList.toString())
+                                        editor.apply()
                                     }
                                 }
                                 recyclerView.adapter = AttendeesAdapter(attendeesList)
@@ -142,7 +146,6 @@ class RestaurantDetails:AppCompatActivity() {
                     binding.like.isInvisible
                 }
             }
-
             override fun unLiked(likeButton: LikeButton?) {
                 binding.like.isInvisible
             }
@@ -167,7 +170,3 @@ class RestaurantDetails:AppCompatActivity() {
         savedStateRegistry
     }
     }
-
-private fun Intent.putStringArrayListExtra(s: String, currentUser: CurrentUser) {
-
-}

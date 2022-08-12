@@ -9,6 +9,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.go4launch.api.NotificationInstance
 import com.example.go4launch.constants.Constants
+import com.example.go4launch.model.userdetails.CurrentUser
 import com.example.go4launch.model.userdetails.NotificationData
 import com.example.go4launch.model.userdetails.PushNotification
 import kotlinx.coroutines.CoroutineScope
@@ -26,16 +27,14 @@ class AlarmReciever:BroadcastReceiver(){
         val preferences = context?.getSharedPreferences("myPreferences", AppCompatActivity.MODE_PRIVATE)
         val address1 = preferences?.getString("address", null)
         val name1 = preferences?.getString("name", null)
-
+        val user=preferences?.getString("user",null)
+        val currentUser=CurrentUser(user)
         PushNotification(
-
-            NotificationData(name1, address1),
+            NotificationData(name1, address1, listOf(currentUser)),
             Constants.TOPIC
 
         ).also {
-
             sendNotification(it)
-
         }
 
     }

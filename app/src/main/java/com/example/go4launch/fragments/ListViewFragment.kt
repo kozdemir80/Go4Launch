@@ -1,10 +1,8 @@
 package com.example.go4launch.fragments
 import android.annotation.SuppressLint
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -17,10 +15,6 @@ import com.example.go4launch.adapters.RestaurantAdapter
 import com.example.go4launch.api.RestaurantRepository
 import com.example.go4launch.viewmodel.ConvertorFactory
 import com.example.go4launch.viewmodel.MapsViewModel
-import com.google.android.gms.common.api.Status
-import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 
 @Suppress("NAME_SHADOWING", "DEPRECATION")
 class ListViewFragment : Fragment(R.layout.fragment_list_view) {
@@ -33,7 +27,6 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     @SuppressLint("NotifyDataSetChanged", "MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        searchResults()
         recyclerView = view.findViewById(R.id.list_recyclerView)
         restaurantAdapter = RestaurantAdapter()
         recyclerView.adapter = restaurantAdapter
@@ -63,12 +56,13 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
         mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
             if (response.isSuccessful) {
                 response.body().let { myResponse ->
+
                     restaurantAdapter.differ.submitList(myResponse?.results)
                     restaurantAdapter.setOnItemClickListener(object :
                         RestaurantAdapter.onItemClickListener {
                         override fun onItemClick(position: Int) {
-                            val preferences =
-                                activity?.getSharedPreferences("myPreferences",
+                           val preferences =
+                              activity?.getSharedPreferences("myPreferences",
                                     Context.MODE_PRIVATE)
                             val editor = preferences?.edit()
                             editor?.putString("phone_number",
@@ -86,33 +80,16 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                             editor?.apply()
                             val intent = Intent(activity, RestaurantDetails::class.java)
                             startActivity(intent)
+
                         }
+
                     })
+
                 }
             }
         }
 
 
     }
-    private fun searchResults() {
-        autocomplete = ArrayList()
-        val autocompleteFragment =
-            childFragmentManager.findFragmentById(R.id.autocomplete_fragment)
-                    as AutocompleteSupportFragment
 
-
-        autocompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME))
-        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-            override fun onPlaceSelected(place: Place) {
-                // TODO: Get info about the selected place.
-                Log.i(ContentValues.TAG, "Place: ${place.name}, ${place.id}")
-
-            }
-
-            override fun onError(status: Status) {
-                // TODO: Handle the error.
-                Log.i(ContentValues.TAG, "An error occurred: $status")
-            }
-        })
-    }
     }
