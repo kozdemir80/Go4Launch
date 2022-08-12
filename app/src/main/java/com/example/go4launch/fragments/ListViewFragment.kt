@@ -77,7 +77,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                             editor?.putFloat("rating",
                                 myResponse!!.results[position].rating.toFloat())
                             editor?.putString("name", myResponse!!.results[position].name)
-                            editor?.putString("address", myResponse!!.results[position].vicinity)
+                           editor?.putString("address", myResponse!!.results[position].vicinity)
                             editor?.putString("image", myResponse!!.results[position].icon)
                             editor?.putString("lat",
                                 myResponse!!.results[position].geometry.location.lat.toString())
