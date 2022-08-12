@@ -10,10 +10,9 @@ import retrofit2.Response
 
 class SearchViewModel(private val repository: SearchRepository):ViewModel(){
     val myResponse: MutableLiveData<Response<RestaurantDetails>> = MutableLiveData()
-    fun searchRestaurants(loc:String,type:String,key:String,radius:String,keyword:String){
+    fun searchRestaurants(query:String,location:String,radius:String,key:String){
         viewModelScope.launch {
-            val response: Response<RestaurantDetails> = repository.searchRestaurants(loc = loc,
-                type = type, key = key,radius=radius, keyword = keyword)
+            val response: Response<RestaurantDetails> = repository.searchRestaurants(query = query, location = location ,radius = radius, key = key)
             myResponse.value=response
         }
     }

@@ -7,12 +7,11 @@ import retrofit2.http.Query
 
 interface SearchApi {
 
-    @GET("nearbysearch/json?")
+    @GET("textsearch/json")
     suspend fun getAllNearbyRest(
-        @Query("location") loc: String?,
-        @Query("type") type: String?,
-        @Query("key") key: String?,
+        @Query("query") query: String?,
+        @Query("location")location:String?,
         @Query("radius") radius: String?,
-        @Query("keyword") keyword: String?,
+        @Query("key") key: String?
     ): Response<RestaurantDetails>
 }

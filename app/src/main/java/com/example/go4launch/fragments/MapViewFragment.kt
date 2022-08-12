@@ -1,4 +1,6 @@
 package com.example.go4launch.fragments
+
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,8 +9,11 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
@@ -19,10 +24,11 @@ import com.example.go4launch.BuildConfig.MAPS_API_KEY
 import com.example.go4launch.R
 import com.example.go4launch.activities.RestaurantDetails
 import com.example.go4launch.api.RestaurantRepository
+import com.example.go4launch.api.SearchRepository
 import com.example.go4launch.viewmodel.ConvertorFactory
 import com.example.go4launch.viewmodel.MapsViewModel
+import com.example.go4launch.viewmodel.SearchConvertorFactory
 import com.example.go4launch.viewmodel.SearchViewModel
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -34,11 +40,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.AutocompleteSessionToken
-import com.google.android.libraries.places.api.model.RectangularBounds
-import com.google.android.libraries.places.api.model.TypeFilter
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import com.google.android.libraries.places.api.net.PlacesClient
 
 @Suppress("DEPRECATION")
@@ -50,6 +51,9 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
     private lateinit var placesClient: PlacesClient
     private var cameraPosition: CameraPosition? = null
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+
+    private lateinit var editText:EditText
 
 
     companion object {
@@ -64,18 +68,17 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
     private lateinit var searchViewModel: SearchViewModel
     private val defaultLocation = LatLng(37.076526, 36.242001)
     private var locationPermissionGranted = false
-    private val AUTOCOMPLETE_REQUEST_CODE = 1
 
 
     @SuppressLint("MissingPermission", "PotentialBehaviorOverride")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        editText= EditText(requireContext())
+        editText=view.findViewById(R.id.query)
         if (savedInstanceState != null) {
             lastLocation = savedInstanceState.getParcelable(KEY_LOCATION)!!
             cameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION)
         }
-
-
         // Construct a PlacesClient
         Places.initialize(requireContext(), MAPS_API_KEY)
         placesClient = Places.createClient(requireContext())
@@ -151,6 +154,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                     if (task.isSuccessful) {
                         // Set the map's camera position to the current location of the device.
                         lastLocation = Location(LocationManager.NETWORK_PROVIDER)
+
                         lastLocation = task.result
                         mapView?.moveCamera(CameraUpdateFactory.newLatLngZoom(
                             LatLng(lastLocation.latitude,
@@ -277,54 +281,89 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
 
 
                             })
-                            mapView?.clear()
+
+
+
 
                         }
                     }
                 }
             }
         }
+
     }
 
-    private fun searchRestaurants(){
 
-        val intent=Intent()
-        val preferences =
-            activity?.getSharedPreferences("myPreferences",
-                Context.MODE_PRIVATE)
-        val currentLat=preferences!!.getString("currentLat",null)
-        val currentLng=preferences.getString("currentLng",null)
-        val latLng=LatLng(currentLat!!.toDouble(),currentLng!!.toDouble())
-        val query=intent.getStringExtra("query")
-                    val token = AutocompleteSessionToken.newInstance()
-                    val bounds = RectangularBounds.newInstance(
-                        LatLng(currentLat.toDouble(), currentLng.toDouble()),
-                        LatLng(currentLat.toDouble(), currentLat.toDouble()))
-                    val request =
-                        FindAutocompletePredictionsRequest.builder()
-                            .setLocationBias(bounds)
-                            .setOrigin(LatLng(currentLat.toDouble(), currentLng.toDouble()))
-                            .setCountry("US")
-                            .setTypeFilter(TypeFilter.ADDRESS)
-                            .setSessionToken(token)
-                            .setQuery(query)
-                            .build()
 
-                    placesClient.findAutocompletePredictions(request)
-                        .addOnSuccessListener { response: FindAutocompletePredictionsResponse ->
-                            for (prediction in response.autocompletePredictions) {
+    @SuppressLint("PotentialBehaviorOverride")
+    private fun searchRestaurants() {
+        mapView?.clear()
+            val preferences =
+                activity?.getSharedPreferences("myPreferences",
+                    Context.MODE_PRIVATE)
 
-                                mapView?.addMarker(MarkerOptions().position(latLng))
-                                Log.d("mySearch",prediction.placeId)
-                                mapView?.moveCamera(CameraUpdateFactory.newLatLng())
+            editText=EditText(requireContext())
+            editText = requireView().findViewById(R.id.query)
+            editText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int,
+                ) {
 
-                            }
-                        }.addOnFailureListener { exception: Exception? ->
-                            if (exception is ApiException) {
-                                Log.e(TAG, "Place not found: " + exception.statusCode)
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    val currentLat = preferences!!.getString("currentLat", null)
+                    val currentLng = preferences.getString("currentLng", null)
+                    val query = editText.text.toString()
+                    val radius = 1000
+                    val key = MAPS_API_KEY
+                    val repository = SearchRepository()
+                    val searchConvertorFactory = SearchConvertorFactory(repository)
+                    searchViewModel = SearchViewModel(repository)
+                    searchViewModel = ViewModelProvider(this@MapViewFragment,
+                        searchConvertorFactory)[searchViewModel::class.java]
+                    searchViewModel.searchRestaurants(query,
+                        "$currentLat,$currentLng",
+                        radius.toString(),key)
+
+
+                    searchViewModel.myResponse.observe(viewLifecycleOwner) { response ->
+                        if (response.isSuccessful) {
+                            response.body().let { searchResponse ->
+                                for (i in 0 until searchResponse!!.results.size) {
+                                    val lat = searchResponse.results[i].geometry.location.lat
+                                    val lng = searchResponse.results[i].geometry.location.lng
+                                    val searchLatLng = LatLng(lat, lng)
+                                    mapView?.addMarker(MarkerOptions().position(searchLatLng)
+                                        .title(searchResponse.results[i].name))
+
+                                    mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener { marker ->
+
+
+                                        return@OnMarkerClickListener false
+
+                                    })
+                                }
+
                             }
                         }
+                    }
                 }
-            }
+
+                override fun afterTextChanged(s: Editable?) {
+
+                }
+
+            })
+
+
+    }
+}
+
+
+
 
 
