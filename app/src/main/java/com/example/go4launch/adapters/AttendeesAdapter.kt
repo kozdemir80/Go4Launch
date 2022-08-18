@@ -33,6 +33,9 @@ class AttendeesAdapter(private var attendeesList:ArrayList<CurrentUser>):Recycle
                         val attendingUsers=attendeesList[position]
                        holder.imageView.load(attendingUsers.Photo)
                        holder.username.text=attendingUsers.Name +" "+"is joining!!"
+
+
+
                     }
                 }
             }

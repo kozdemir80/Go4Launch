@@ -37,12 +37,13 @@ class RestaurantDetails:AppCompatActivity() {
       private lateinit var binding: RestaurantDetailsActivityBinding
       private lateinit var recyclerView: RecyclerView
       private lateinit var attendeesList: ArrayList<CurrentUser>
-      private val TAG="RestaurantDetails"
+      private val TAG="restaurantDetails"
       private lateinit var calendar: Calendar
       private lateinit var auth:FirebaseAuth
       private lateinit var alarmManager:AlarmManager
       private lateinit var database: DatabaseReference
-      private lateinit var userList: ArrayList<CurrentUser>
+      private lateinit var userList:ArrayList<String?>
+      private lateinit var attendeesAdapter: AttendeesAdapter
 
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -77,12 +78,15 @@ class RestaurantDetails:AppCompatActivity() {
         val website = preferences.getString("website", null)
         val phoneNumber = preferences.getString("phone_number", null)
         val myImage = preferences.getString("image", null)
-        intent.getStringExtra("restaurantId")
-        Log.d("myId",intent.getStringExtra("restaurantId").toString())
-        binding.fabBook.setOnClickListener { view ->
+        val myLat=preferences.getString("myLat",null)
+        val myLng=preferences.getString("myLng",null)
+
+        binding.fabBook.setOnClickListener {
             if (binding.fabBook.isChecked) {
                 binding.fabBook.isChecked = true
                 editor.putString("Name", name1)
+                editor.putString("restaurantLat",myLat.toString())
+                editor.putString("restaurantLng",myLng.toString())
 
                 auth = Firebase.auth
                 auth = FirebaseAuth.getInstance()
@@ -92,19 +96,16 @@ class RestaurantDetails:AppCompatActivity() {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         if (snapshot.exists()) {
                             for (i in snapshot.children) {
+
                                 val user = i.getValue(CurrentUser::class.java)
-                                if (user != null) {
-                                    if (user.Id == auth.currentUser!!.uid) {
-                                        attendeesList.add(user)
-                                        userList= ArrayList()
-                                        val userList= userList.add(user)
+                                if (user != null && user.restaurantId ==name1) {
+                                    editor.putString("userList",user.Name)
 
+                                    attendeesList.add(user)
 
-                                        editor.putString("user", userList.toString())
-                                        editor.apply()
-                                    }
                                 }
                                 recyclerView.adapter = AttendeesAdapter(attendeesList)
+                                editor.apply()
                                 setAlarm()
                             }
                         }

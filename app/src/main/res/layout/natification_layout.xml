@@ -21,7 +21,7 @@
 
         <TextView
             android:id="@+id/notificationTitleTV"
-            style="bold"
+            android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -38,14 +38,16 @@
             android:layout_below="@+id/notificationTitleTV"
             android:layout_toRightOf="@+id/notificationLogoIV"
             android:layout_marginLeft="10dp"
+            android:textStyle="bold"
             android:layout_marginRight="10dp"
             android:text="@string/descrption"
             android:textSize="12sp" />
 
-        <EditText
+        <TextView
             android:id="@+id/userList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textStyle="bold"
             android:layout_below="@+id/notificationTitleTV"
             android:layout_toRightOf="@+id/notificationLogoIV"
             android:layout_marginTop="30dp"
@@ -53,8 +55,6 @@
             android:layout_marginRight="10dp"
             android:text="@string/descrption"
             android:textSize="12sp" />
-
-
 
     </RelativeLayout>
 

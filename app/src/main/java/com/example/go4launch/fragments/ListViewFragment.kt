@@ -46,19 +46,17 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
         val preferences = activity?.getSharedPreferences("myPreferences", Context.MODE_PRIVATE)
         val lng = preferences?.getString("currentLng", null)
         val lat = preferences?.getString("currentLat", null)
-        val currentLat = lat
-        val currentLng = lng
-        val keyword = preferences?.getString("keyword", null)
+
         val apikey = BuildConfig.MAPS_API_KEY
         val type = "restaurant"
         val radius = 1000
         val repository = RestaurantRepository()
         val convertorFactory = ConvertorFactory(repository)
         mapsViewModel = MapsViewModel(repository)
-        mapsViewModel = ViewModelProvider(this, convertorFactory).get(mapsViewModel::class.java)
+        mapsViewModel = ViewModelProvider(this, convertorFactory)[mapsViewModel::class.java]
         mapsViewModel.getRestaurantDetails(
             key = apikey,
-            loc = "${currentLat},${currentLng}",
+            loc = "$lat,$lng",
             type = type,
             radius = radius.toString(),
         )
@@ -82,9 +80,9 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                             editor?.putString("name", myResponse!!.results[position].name)
                             editor?.putString("address", myResponse!!.results[position].vicinity)
                             editor?.putString("image", myResponse!!.results[position].icon)
-                            editor?.putString("lat",
+                            editor?.putString("myLat",
                                 myResponse!!.results[position].geometry.location.lat.toString())
-                            editor?.putString("lng",
+                            editor?.putString("myLng",
                                 myResponse!!.results[position].geometry.location.lng.toString())
                             editor?.apply()
                             val intent = Intent(activity, RestaurantDetails::class.java)
@@ -157,6 +155,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                                         searchResponse!!.results[position].geometry.location.lat.toString())
                                     editor?.putString("lng",
                                         searchResponse!!.results[position].geometry.location.lng.toString())
+
                                     editor?.apply()
                                     val intent = Intent(activity, RestaurantDetails::class.java)
                                     startActivity(intent)

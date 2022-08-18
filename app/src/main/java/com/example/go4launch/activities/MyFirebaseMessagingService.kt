@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
+import android.widget.ListView
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -18,6 +19,7 @@ import com.example.go4launch.constants.Constants.Companion.channelId
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlin.random.Random
+
 
 @SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class MyFirebaseMessagingService:FirebaseMessagingService() {
@@ -30,21 +32,19 @@ class MyFirebaseMessagingService:FirebaseMessagingService() {
         val notificationId= Random.nextInt()
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         notificationChannel(notificationManager)
+        val pendingIntent=PendingIntent.getActivity(applicationContext,0,intent, FLAG_IMMUTABLE)
         val remoteViews= RemoteViews("com.example.go4launch",R.layout.natification_layout)
         remoteViews.setTextViewText(R.id.notificationTitleTV,message.data["title"])
         remoteViews.setTextViewText(R.id.notificationDescTV,message.data["message"])
         remoteViews.setTextViewText(R.id.userList,message.data["userList"])
         remoteViews.setImageViewResource(R.id.notificationLogoIV,R.drawable.soup)
-
-        val pendingIntent=PendingIntent.getActivity(this,0,intent, FLAG_IMMUTABLE)
-        val notification=NotificationCompat.Builder(this,channelId)
-          .setContentTitle(message.data["userList"])
-          .setContentText(message.data["message"] + " " + " ," + message.data["title"])
-          .setSmallIcon(R.drawable.soup)
-          .setAutoCancel(true)
-          .setOnlyAlertOnce(true)
-          .setContentIntent(pendingIntent)
-          .build()
+        val notification=NotificationCompat.Builder(applicationContext,channelId)
+            .setSmallIcon(R.drawable.soup)
+            .setCustomContentView(remoteViews)
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
+            .setContentIntent(pendingIntent)
+            .build()
         notificationManager.notify(notificationId,notification)
     }
     private fun notificationChannel(notificationManager: NotificationManager){
@@ -60,4 +60,5 @@ class MyFirebaseMessagingService:FirebaseMessagingService() {
         }
         notificationManager.createNotificationChannel(channel)
     }
+
 }

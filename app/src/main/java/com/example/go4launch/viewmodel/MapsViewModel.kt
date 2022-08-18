@@ -12,7 +12,7 @@ class MapsViewModel(private val repository:RestaurantRepository):ViewModel() {
     val myResponse: MutableLiveData<Response<RestaurantDetails>> = MutableLiveData()
     fun getRestaurantDetails(loc:String,type:String,key:String,radius:String){
         viewModelScope.launch {
-            val response: Response<RestaurantDetails> = repository.getRestaurants(loc = loc,
+           val response: Response<RestaurantDetails> = repository.getRestaurants(loc = loc,
                type = type, key = key,radius=radius)
             myResponse.value=response
         }
