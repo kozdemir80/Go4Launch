@@ -256,46 +256,45 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                 radius = radius.toString())
             mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
                 if (response.isSuccessful) {
-
-
                          response.body().let {mapResponse ->
+                             for (i in 0 until mapResponse!!.results.size) {
 
-                             for (myResponse in 0 until mapResponse!!.results.size) {
-                                 val lat = mapResponse.results[myResponse].geometry.location.lat
-                                 val lng = mapResponse.results[myResponse].geometry.location.lng
-                                 val locations = LatLng(lat, lng)
-                                 mapView?.addMarker(MarkerOptions().position(locations).title(
-                                     mapResponse.results[myResponse].name))
 
+                                     val lat = mapResponse.results[i].geometry.location.lat
+                                     val lng = mapResponse.results[i].geometry.location.lng
+                                     val locations = LatLng(lat, lng)
+                                     mapView?.addMarker(MarkerOptions().position(locations).title(
+                                         mapResponse.results[i].name))
 
                                  mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener {
-                                     for (i in 0 until it.title!!.length) {
-
-
+                                     for(marker in 0 until it.title!!.length) {
                                          editor?.putString("phone_number1",
-                                             mapResponse.results[i].formatted_phone_number)
+                                             mapResponse.results[marker].formatted_phone_number)
                                          editor?.putFloat("rating",
-                                             mapResponse.results[i].rating.toFloat())
+                                             mapResponse.results[marker].rating.toFloat())
                                          editor?.putString("name",
-                                             mapResponse.results[i].name)
+                                             mapResponse.results[marker].name)
                                          editor?.putString("address",
-                                             mapResponse.results[i].vicinity)
+                                             mapResponse.results[marker].vicinity)
                                          editor?.putString("image",
-                                             mapResponse.results[i].icon)
+                                             mapResponse.results[marker].icon)
                                          editor?.putString("lat",
-                                             mapResponse.results[i].geometry.location.lat.toString())
+                                             mapResponse.results[marker].geometry.location.lat.toString())
                                          editor?.putString("lng",
-                                             mapResponse.results[i].geometry.location.lng.toString())
-                                         editor?.apply()
+                                             mapResponse.results[marker].geometry.location.lng.toString())
                                      }
+                                     editor?.apply()
+
                                      val intent =
                                          Intent(requireContext(), RestaurantDetails::class.java)
                                      startActivity(intent)
                                      return@OnMarkerClickListener false
 
                                  })
-                             }
-                }}
+
+                }
+
+                         }}
 
             }
             }
@@ -356,6 +355,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                 }
             })
     }
+
 }
 
 
