@@ -43,7 +43,7 @@
             android:text="@string/descrption"
             android:textSize="12sp" />
 
-        <TextView
+        <ListView
             android:id="@+id/userList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

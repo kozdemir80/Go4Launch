@@ -21,6 +21,7 @@ import com.example.go4launch.R
 import com.example.go4launch.adapters.AttendeesAdapter
 import com.example.go4launch.constants.Constants.Companion.TOPIC
 import com.example.go4launch.databinding.RestaurantDetailsActivityBinding
+import com.example.go4launch.model.restaturantDetails.Result
 import com.example.go4launch.model.userdetails.CurrentUser
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
@@ -28,6 +29,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import com.like.LikeButton
 import com.like.OnLikeListener
 import java.util.*
@@ -43,7 +46,7 @@ class RestaurantDetails:AppCompatActivity() {
       private lateinit var alarmManager:AlarmManager
       private lateinit var database: DatabaseReference
       private lateinit var userList:ArrayList<String?>
-      private lateinit var attendeesAdapter: AttendeesAdapter
+
 
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -80,77 +83,99 @@ class RestaurantDetails:AppCompatActivity() {
         val myImage = preferences.getString("image", null)
         val myLat=preferences.getString("myLat",null)
         val myLng=preferences.getString("myLng",null)
+        val title=intent.getStringExtra("title")
+        val json=Gson()
+        try {
+            val details = json.fromJson(title, Result::class.java)
 
-        binding.fabBook.setOnClickListener {
-            if (binding.fabBook.isChecked) {
-                binding.fabBook.isChecked = true
-                editor.putString("Name", name1)
-                editor.putString("restaurantLat",myLat.toString())
-                editor.putString("restaurantLng",myLng.toString())
 
-                auth = Firebase.auth
-                auth = FirebaseAuth.getInstance()
-                database = FirebaseDatabase.getInstance().getReference("Users")
-                database.addValueEventListener(object : ValueEventListener {
-                    @SuppressLint("SetTextI18n")
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        if (snapshot.exists()) {
-                            for (i in snapshot.children) {
 
-                                val user = i.getValue(CurrentUser::class.java)
-                                if (user != null && user.restaurantId ==name1) {
-                                    editor.putString("userList",user.Name)
 
-                                    attendeesList.add(user)
 
+
+
+
+
+
+            binding.fabBook.setOnClickListener {
+                if (binding.fabBook.isChecked) {
+                    binding.fabBook.isChecked = true
+                    editor.putString("Name", name1)
+                    editor.putString("restaurantLat", myLat.toString())
+                    editor.putString("restaurantLng", myLng.toString())
+
+
+                    auth = Firebase.auth
+                    auth = FirebaseAuth.getInstance()
+                    database = FirebaseDatabase.getInstance().getReference("Users")
+                    database.addValueEventListener(object : ValueEventListener {
+                        @SuppressLint("SetTextI18n")
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                for (i in snapshot.children) {
+
+                                    val user = i.getValue(CurrentUser::class.java)
+                                    if (user != null && user.restaurantId == name1) {
+                                        attendeesList.add(user)
+                                        editor.putString("userList", user.Name)
+
+
+                                    }
+                                    recyclerView.adapter = AttendeesAdapter(attendeesList)
+                                    editor.apply()
+                                    setAlarm()
                                 }
-                                recyclerView.adapter = AttendeesAdapter(attendeesList)
-                                editor.apply()
-                                setAlarm()
                             }
                         }
-                    }
 
-                    override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
-                    }
-                })
-                savedStateRegistry
-            }
-        }
-        binding.restaurantImageView.load(myImage)
-        binding.detailsRestaurantName.text = name1
-
-        if (binding.detailsRestaurantName.text.isNotEmpty()) {
-            binding.like.isVisible
-        }
-        binding.detailsRetaurantAddress.text = address1
-        binding.btnCall.setOnClickListener {
-            val intent = Intent(Intent.ACTION_DIAL)
-            intent.data = Uri.parse(phoneNumber)
-            startActivity(intent)
-        }
-        binding.btnWebsite.setOnClickListener {
-            try {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.data = Uri.parse(website)
-
-                startActivity(intent)
-            } catch (e: NullPointerException) {
-            }
-        }
-        binding.btnLike.setOnLikeListener(object : OnLikeListener {
-            override fun liked(likeButton: LikeButton?) {
-                if (binding.btnLike.isLiked) {
-                    binding.like.isVisible
-                } else {
-                    binding.like.isInvisible
+                        override fun onCancelled(error: DatabaseError) {
+                            TODO("Not yet implemented")
+                        }
+                    })
+                    savedStateRegistry
                 }
             }
-            override fun unLiked(likeButton: LikeButton?) {
-                binding.like.isInvisible
+            binding.restaurantImageView.load(myImage)
+
+            binding.detailsRestaurantName.text = name1
+            binding.detailsRestaurantName.text = title
+
+            if (binding.detailsRestaurantName.text.isNotEmpty()) {
+                binding.like.isVisible
             }
-        })
+            binding.detailsRetaurantAddress.text = address1
+            binding.detailsRetaurantAddress.text = details.vicinity
+
+
+
+            binding.btnCall.setOnClickListener {
+                val intent = Intent(Intent.ACTION_DIAL)
+                intent.data = Uri.parse(phoneNumber)
+                startActivity(intent)
+            }
+            binding.btnWebsite.setOnClickListener {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Uri.parse(website)
+
+                    startActivity(intent)
+                } catch (e: NullPointerException) {
+                }
+            }
+            binding.btnLike.setOnLikeListener(object : OnLikeListener {
+                override fun liked(likeButton: LikeButton?) {
+                    if (binding.btnLike.isLiked) {
+                        binding.like.isVisible
+                    } else {
+                        binding.like.isInvisible
+                    }
+                }
+
+                override fun unLiked(likeButton: LikeButton?) {
+                    binding.like.isInvisible
+                }
+            })
+        } catch (e:JsonSyntaxException){}
     }
     @SuppressLint("ShortAlarm")
     @RequiresApi(Build.VERSION_CODES.M)

@@ -14,7 +14,6 @@ import com.example.go4launch.model.userdetails.PushNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
 @Suppress("NAME_SHADOWING")
 class AlarmReciever:BroadcastReceiver(){
     private val TAG="RestaurantDetails"
@@ -39,7 +38,7 @@ class AlarmReciever:BroadcastReceiver(){
         try {
             val response = NotificationInstance.api.postNotification(notification)
             if (response.isSuccessful) {
-               Log.e(TAG,response.message().toString())
+                Log.e(TAG,response.message().toString())
             } else {
                 Log.e(TAG, response.errorBody().toString())
             }

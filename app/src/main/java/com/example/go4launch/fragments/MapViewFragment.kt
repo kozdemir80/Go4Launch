@@ -41,6 +41,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.gson.Gson
 
 @Suppress("DEPRECATION")
 class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback {
@@ -52,9 +53,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
     private var cameraPosition: CameraPosition? = null
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var editText:EditText
-    private lateinit var arrayList: ArrayList<Marker>
-
-
     companion object {
         private const val KEY_CAMERA_POSITION = "camera_position"
         private const val KEY_LOCATION = "location"
@@ -257,42 +255,36 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
             mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
                 if (response.isSuccessful) {
                          response.body().let {mapResponse ->
-                             for (i in 0 until mapResponse!!.results.size) {
+                             for (i in 0 until mapResponse!!.results.size ) {
 
 
-                                     val lat = mapResponse.results[i].geometry.location.lat
-                                     val lng = mapResponse.results[i].geometry.location.lng
-                                     val locations = LatLng(lat, lng)
-                                     mapView?.addMarker(MarkerOptions().position(locations).title(
-                                         mapResponse.results[i].name))
+                                 val lat = mapResponse.results[i].geometry.location.lat
+                                 val lng = mapResponse.results[i].geometry.location.lng
+                                 val locations = LatLng(lat, lng)
 
-                                 mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener {
-                                     for(marker in 0 until it.title!!.length) {
-                                         editor?.putString("phone_number1",
-                                             mapResponse.results[marker].formatted_phone_number)
-                                         editor?.putFloat("rating",
-                                             mapResponse.results[marker].rating.toFloat())
-                                         editor?.putString("name",
-                                             mapResponse.results[marker].name)
-                                         editor?.putString("address",
-                                             mapResponse.results[marker].vicinity)
-                                         editor?.putString("image",
-                                             mapResponse.results[marker].icon)
-                                         editor?.putString("lat",
-                                             mapResponse.results[marker].geometry.location.lat.toString())
-                                         editor?.putString("lng",
-                                             mapResponse.results[marker].geometry.location.lng.toString())
-                                     }
-                                     editor?.apply()
+                                 val currentMarker=mapView?.addMarker(MarkerOptions().position(locations)
+                                     .title(mapResponse.results[i].name))
 
+                                currentMarker?.tag=mapResponse.results[i]
+
+
+
+                                 mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener{
+
+                                         val gson= Gson()
+
+                                          val myTag=gson.toJson(it.tag)
+                                     Log.d("mytagg",myTag.toString())
                                      val intent =
                                          Intent(requireContext(), RestaurantDetails::class.java)
+                                     intent.putExtra("title",it.title)
+                                     intent.putExtra("markerTag",myTag)
                                      startActivity(intent)
-                                     return@OnMarkerClickListener false
+                                    return@OnMarkerClickListener false
 
                                  })
 
-                }
+                             }
 
                          }}
 
@@ -357,6 +349,8 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
     }
 
 }
+
+
 
 
 

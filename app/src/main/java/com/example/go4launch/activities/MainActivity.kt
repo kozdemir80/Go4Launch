@@ -119,10 +119,12 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
     private fun drawerViews(){
+        val preferences=getSharedPreferences("myPreferences", MODE_PRIVATE)
+       val name= preferences.getString("name",null)
         binding.navView.setBackgroundResource(com.google.android.libraries.places.R.color.quantum_orange)
         binding.navView.setNavigationItemSelectedListener {
             when(it.itemId){
-                R.id.launch -> Toast.makeText(applicationContext,"Your Launch",Toast.LENGTH_LONG).show()
+                R.id.launch -> title=name
                 R.id.settings -> Toast.makeText(applicationContext,"Settings",Toast.LENGTH_LONG).show()
                 R.id.logout-> {
                     googleSignInClient.signOut().addOnCompleteListener {
