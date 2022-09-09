@@ -1,5 +1,4 @@
 package com.example.go4launch.activities
-
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -14,21 +13,19 @@ import com.example.go4launch.model.userdetails.PushNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-@Suppress("NAME_SHADOWING")
 class AlarmReciever:BroadcastReceiver(){
-    private val TAG="RestaurantDetails"
+    private val TAG="restaurantDetails"
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onReceive(context: Context?, intent: Intent?) {
-        val intent=Intent(context,MyFirebaseMessagingService::class.java)
-        intent.flags=Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        Intent(context,MyFirebaseMessagingService::class.java)
+        intent?.flags=Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val preferences = context?.getSharedPreferences("myPreferences", AppCompatActivity.MODE_PRIVATE)
         val address1 = preferences?.getString("address", null)
         val name1 = preferences?.getString("name", null)
-        val user= preferences?.getString("userList",null)
+        val user= preferences?.getString("users",null)
         PushNotification(
             NotificationData(name1, address1, user),
             TOPIC
-
         ).also {
             sendNotification(it)
         }
@@ -46,5 +43,4 @@ class AlarmReciever:BroadcastReceiver(){
             Log.e(TAG, e.toString())
         }
     }
-
 }

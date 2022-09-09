@@ -18,29 +18,23 @@ import com.example.go4launch.constants.Constants.Companion.channelId
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlin.random.Random
-
-
-
-
-
 @SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class MyFirebaseMessagingService:FirebaseMessagingService() {
-    @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("UnspecifiedImmutableFlag")
+    @RequiresApi(Build.VERSION_CODES.M)
+
     override fun onMessageReceived(message: RemoteMessage) {
-
-
         val intent= Intent(this@MyFirebaseMessagingService,RestaurantDetails::class.java)
         val notificationManager=getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationId= Random.nextInt()
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         notificationChannel(notificationManager)
         val pendingIntent= PendingIntent.getActivity(applicationContext,0,intent,
-            PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.FLAG_ONE_SHOT)
         val remoteViews= RemoteViews("com.example.go4launch", R.layout.natification_layout)
         remoteViews.setTextViewText(R.id.notificationTitleTV,message.data["title"])
         remoteViews.setTextViewText(R.id.notificationDescTV,message.data["message"])
-        remoteViews.setTextViewText(R.id.userList,message.data["userList"])
+        remoteViews.setTextViewText(R.id.userList,message.data["userList\n"])
         remoteViews.setImageViewResource(R.id.notificationLogoIV, R.drawable.soup)
         val notification=
             NotificationCompat.Builder(applicationContext,channelId)

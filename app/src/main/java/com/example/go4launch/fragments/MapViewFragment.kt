@@ -16,6 +16,7 @@ import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -225,21 +226,17 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
     }
     @SuppressLint("PotentialBehaviorOverride", "MissingPermission", "NotifyDataSetChanged")
     private fun nearByRestaurants(){
-
-        val preferences =
-            activity?.getSharedPreferences("myPreferences",
-                Context.MODE_PRIVATE)
-
-
-        val editor = preferences!!.edit()
         lastLocation = Location(LocationManager.NETWORK_PROVIDER)
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
         fusedLocationProviderClient.lastLocation.addOnCompleteListener {
             val currentLat = lastLocation.latitude
             val currentLng = lastLocation.longitude
-            editor?.putString("currentLat", currentLat.toString())
-            editor?.putString("currentLng", currentLng.toString())
+            val preferences = activity?.getSharedPreferences("myPreferences", AppCompatActivity.MODE_PRIVATE)
+            val editor=preferences?.edit()
+            editor?.putString("currentLat",currentLat.toString())
+            editor?.putString("currentLng",currentLng.toString())
+            editor?.apply()
             val apikey = MAPS_API_KEY
             val type = "restaurant"
             val radius = 1000
@@ -256,28 +253,19 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                 if (response.isSuccessful) {
                          response.body().let {mapResponse ->
                              for (i in 0 until mapResponse!!.results.size ) {
-
-
                                  val lat = mapResponse.results[i].geometry.location.lat
                                  val lng = mapResponse.results[i].geometry.location.lng
                                  val locations = LatLng(lat, lng)
-
-                                 val currentMarker=mapView?.addMarker(MarkerOptions().position(locations)
+                                val currentMarker=mapView?.addMarker(MarkerOptions().position(locations)
                                      .title(mapResponse.results[i].name))
-
                                 currentMarker?.tag=mapResponse.results[i]
-
-
-
-                                 mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener{
-
+                                 mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener{Marker->
                                          val gson= Gson()
-
-                                          val myTag=gson.toJson(it.tag)
+                                          val myTag=gson.toJson(Marker.tag)
                                      Log.d("mytagg",myTag.toString())
                                      val intent =
                                          Intent(requireContext(), RestaurantDetails::class.java)
-                                     intent.putExtra("title",it.title)
+                                     intent.putExtra("title",Marker.title)
                                      intent.putExtra("markerTag",myTag)
                                      startActivity(intent)
                                     return@OnMarkerClickListener false
