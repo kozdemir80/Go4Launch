@@ -36,10 +36,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.gson.Gson
@@ -262,30 +259,31 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                                  mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener{Marker->
                                          val gson= Gson()
                                           val myTag=gson.toJson(Marker.tag)
-                                     Log.d("mytagg",myTag.toString())
                                      val intent =
                                          Intent(requireContext(), RestaurantDetails::class.java)
                                      intent.putExtra("title",Marker.title)
                                      intent.putExtra("markerTag",myTag)
                                      startActivity(intent)
                                     return@OnMarkerClickListener false
-
                                  })
-
                              }
-
                          }}
-
             }
+            mapView!!.clear()
+            try {
+
+
+            val intent=Intent()
+            val restaurantLat=intent.getStringExtra("myLat")
+            val restaurantLng=intent.getStringExtra("myLng")
+            val restaurantLatLng=LatLng(restaurantLat!!.toDouble(),restaurantLng!!.toDouble())
+
+                mapView!!.addMarker(MarkerOptions().position(restaurantLatLng).icon(
+                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)))}catch (e:NullPointerException){}
             }
-
-
-
     }
-
     @SuppressLint("PotentialBehaviorOverride")
     private fun searchRestaurants() {
-        mapView?.clear()
             val preferences =
                 activity?.getSharedPreferences("myPreferences",
                     Context.MODE_PRIVATE)
@@ -301,10 +299,11 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                 ) {
                 }
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    mapView!!.clear()
                     val currentLat = preferences!!.getString("currentLat", null)
                     val currentLng = preferences.getString("currentLng", null)
                     val query = editText.text.toString()
-                    val radius = 1000
+
                     val key = MAPS_API_KEY
                     val repository = SearchRepository()
                     val searchConvertorFactory = SearchConvertorFactory(repository)
@@ -312,8 +311,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                     searchViewModel = ViewModelProvider(this@MapViewFragment,
                         searchConvertorFactory)[searchViewModel::class.java]
                     searchViewModel.searchRestaurants(query,
-                        "$currentLat,$currentLng",
-                        radius.toString(),key)
+                        "$currentLat,$currentLng",key)
                     searchViewModel.myResponse.observe(viewLifecycleOwner) { response ->
                         if (response.isSuccessful) {
                             response.body().let { searchResponse ->
@@ -321,9 +319,17 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                                     val lat = searchResponse.results[i].geometry.location.lat
                                     val lng = searchResponse.results[i].geometry.location.lng
                                     val searchLatLng = LatLng(lat, lng)
-                                    mapView?.addMarker(MarkerOptions().position(searchLatLng)
+                                   val searchMarker= mapView?.addMarker(MarkerOptions().position(searchLatLng)
                                         .title(searchResponse.results[i].name))
-                                    mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener {
+                                    searchMarker?.tag=searchResponse.results[i]
+                                    mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener {Marker->
+                                        val gson= Gson()
+                                        val tag=gson.toJson(Marker.tag)
+                                        val intent =
+                                            Intent(requireContext(), RestaurantDetails::class.java)
+                                        intent.putExtra("searchTitle",Marker.title)
+                                        intent.putExtra("searchTag",tag)
+                                        startActivity(intent)
                                         return@OnMarkerClickListener false
                                     })
                                 }

@@ -20,15 +20,16 @@ class AlarmReciever:BroadcastReceiver(){
         Intent(context,MyFirebaseMessagingService::class.java)
         intent?.flags=Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val preferences = context?.getSharedPreferences("myPreferences", AppCompatActivity.MODE_PRIVATE)
-        val address1 = preferences?.getString("address", null)
-        val name1 = preferences?.getString("name", null)
-        val user= preferences?.getString("users",null)
+        val address1 = preferences!!.getString("address", null)
+        val name1 = preferences.getString("name", null)
+        val user= preferences.getStringSet("users",null)
         PushNotification(
-            NotificationData(name1, address1, user),
+            NotificationData(name1, address1, user.toString()),
             TOPIC
         ).also {
             sendNotification(it)
         }
+
     }
     @RequiresApi(Build.VERSION_CODES.M)
     private fun sendNotification(notification:PushNotification)= CoroutineScope(Dispatchers.IO).launch {

@@ -11,7 +11,6 @@ interface SearchApi {
     suspend fun getAllNearbyRest(
         @Query("query") query: String?,
         @Query("location")location:String?,
-        @Query("radius") radius: String?,
         @Query("key") key: String?
     ): Response<RestaurantDetails>
 }

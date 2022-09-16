@@ -42,7 +42,7 @@ class RestaurantDetails:AppCompatActivity() {
       private lateinit var auth:FirebaseAuth
       private lateinit var alarmManager:AlarmManager
       private lateinit var database: DatabaseReference
-      private lateinit var myUsers:ArrayList<String>
+      private  var myUsers= mutableSetOf<String>()
     @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("ResourceAsColor", "StringFormatInvalid")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,8 +71,10 @@ class RestaurantDetails:AppCompatActivity() {
             Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
         })
         FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
+
         try {
             listDetails()
+
 
             val json = Gson()
             Log.d("myTitle", json.fromJson(myJson, Result::class.java).toString())
@@ -83,9 +85,8 @@ class RestaurantDetails:AppCompatActivity() {
 
                     val preferences=getSharedPreferences("myPreferences", MODE_PRIVATE)
                     val editor=preferences.edit()
-                    editor.putString("name", details.name)
-                    editor.putString("address",details.vicinity)
-                    editor.apply()
+                    intent.putExtra("myLat",details.geometry.location.lat.toString())
+                    intent.putExtra("myLng",details.geometry.location.lng.toString())
                     auth = Firebase.auth
                     auth = FirebaseAuth.getInstance()
                     database = FirebaseDatabase.getInstance().getReference("Users")
@@ -100,15 +101,16 @@ class RestaurantDetails:AppCompatActivity() {
                                     val user = i.getValue(CurrentUser::class.java)
                                     if (user != null && user.restaurantId == details.name) {
                                         attendeesList.add(user)
+                                        myUsers.add(user.Name!!.toString().replace("\n",
+                                            System.getProperty("line.separator")!!))
                                     }
                                     recyclerView.adapter = AttendeesAdapter(attendeesList)
-                                    myUsers= arrayListOf()
-                                   val currentUsers= myUsers.add(user!!.Name!!)
-                                     editor.putStringSet("users", setOf(currentUsers.toString()))
 
-                                    editor.apply()
-                                    setAlarm()
+
                                 }
+                                editor.putStringSet("users", myUsers)
+                                editor.apply()
+                                setAlarm()
                             }
                         }
                         override fun onCancelled(error: DatabaseError) {
@@ -175,8 +177,7 @@ class RestaurantDetails:AppCompatActivity() {
         val website = preferences.getString("website", null)
         val phoneNumber = preferences.getString("phone_number", null)
         val myImage = preferences.getString("image", null)
-        val myLat = preferences.getString("myLat", null)
-        val myLng = preferences.getString("myLng", null)
+
         binding.btnWebsite.setOnClickListener {
             try {
                 val intent = Intent(Intent.ACTION_VIEW)
@@ -189,6 +190,7 @@ class RestaurantDetails:AppCompatActivity() {
         binding.btnCall.setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL)
             intent.data = Uri.parse(phoneNumber)
+
             startActivity(intent)
         }
         binding.btnLike.setOnLikeListener(object : OnLikeListener {
@@ -199,6 +201,7 @@ class RestaurantDetails:AppCompatActivity() {
                     binding.like.isInvisible
                 }
             }
+
             override fun unLiked(likeButton: LikeButton?) {
                 binding.like.isInvisible
             }
@@ -212,12 +215,10 @@ class RestaurantDetails:AppCompatActivity() {
         binding.fabBook.setOnClickListener {
             if (binding.fabBook.isChecked) {
                 binding.fabBook.isChecked = true
-                val preferences=getSharedPreferences("myPreferences", MODE_PRIVATE)
-                val editor=preferences.edit()
+                val preferences = getSharedPreferences("myPreferences", MODE_PRIVATE)
+                val editor = preferences.edit()
                 editor.putString("Name", name1)
-                editor.putString("address",address1)
-                editor.putString("restaurantLat", myLat.toString())
-                editor.putString("restaurantLng", myLng.toString())
+                editor.putString("address", address1)
                 editor.apply()
                 auth = Firebase.auth
                 auth = FirebaseAuth.getInstance()
@@ -231,20 +232,17 @@ class RestaurantDetails:AppCompatActivity() {
                                 val user = i.getValue(CurrentUser::class.java)
                                 if (user != null && user.restaurantId == name1) {
                                     attendeesList.add(user)
-                                    myUsers= arrayListOf()
-
-
-                                   editor.putString("users", setOf(user.Name!!).toString())
-
                                 }
+                                myUsers.add(user!!.Name!!)
 
                                 recyclerView.adapter = AttendeesAdapter(attendeesList)
                                 setAlarm()
-                                editor.apply()
-
                             }
+                            editor.putStringSet("users", myUsers)
+                            editor.apply()
                         }
                     }
+
                     override fun onCancelled(error: DatabaseError) {
                         TODO("Not yet implemented")
                     }
@@ -253,6 +251,7 @@ class RestaurantDetails:AppCompatActivity() {
             }
         }
     }
+
     @SuppressLint("ShortAlarm")
     @RequiresApi(Build.VERSION_CODES.M)
     private fun setAlarm() {

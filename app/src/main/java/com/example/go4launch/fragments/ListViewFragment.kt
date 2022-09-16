@@ -104,6 +104,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
             activity?.getSharedPreferences("myPreferences",
                 Context.MODE_PRIVATE)
 
+
         editText=EditText(requireContext())
         editText = requireView().findViewById(R.id.edit_query)
         editText.addTextChangedListener(object : TextWatcher {
@@ -120,7 +121,6 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                 val currentLat = preferences!!.getString("currentLat", null)
                 val currentLng = preferences.getString("currentLng", null)
                 val query = editText.text.toString()
-                val radius = 1000
                 val key = BuildConfig.MAPS_API_KEY
                 val repository = SearchRepository()
                 val searchConvertorFactory = SearchConvertorFactory(repository)
@@ -128,10 +128,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                 searchViewModel = ViewModelProvider(this@ListViewFragment,
                     searchConvertorFactory)[searchViewModel::class.java]
                 searchViewModel.searchRestaurants(query,
-                    "$currentLat,$currentLng",
-                    radius.toString(),key)
-
-
+                    "$currentLat,$currentLng",key)
                 searchViewModel.myResponse.observe(viewLifecycleOwner) { response ->
                     if (response.isSuccessful) {
                         response.body().let { searchResponse ->
@@ -140,21 +137,6 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                                 RestaurantAdapter.onItemClickListener {
                                 override fun onItemClick(position: Int) {
                                     val intent = Intent(activity, RestaurantDetails::class.java)
-
-                                    intent.putExtra("phone_number",
-                                        searchResponse!!.results[position].formatted_phone_number)
-                                    intent.putExtra("website", searchResponse.results[position].website)
-                                    intent.putExtra("rating",
-                                        searchResponse.results[position].rating.toFloat())
-                                    intent.putExtra("name", searchResponse.results[position].name)
-                                    intent.putExtra("address",searchResponse.results[position].vicinity)
-                                    intent.putExtra("image", searchResponse.results[position].icon)
-                                    intent.putExtra("lat",
-                                        searchResponse.results[position].geometry.location.lat.toString())
-                                    intent.putExtra("lng",
-                                        searchResponse.results[position].geometry.location.lng.toString())
-
-
                                     startActivity(intent)
                                 }
 
