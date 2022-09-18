@@ -1,6 +1,4 @@
 package com.example.go4launch.fragments
-
-
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
@@ -40,11 +38,8 @@ import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.gson.Gson
-
 @Suppress("DEPRECATION")
 class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback {
-
-
     private var mapView: GoogleMap? = null
     private lateinit var lastLocation: Location
     private lateinit var placesClient: PlacesClient
@@ -58,13 +53,10 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
         const val DEFAULT_ZOOM = 15
         private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
     }
-
     private lateinit  var mapsViewModel: MapsViewModel
     private lateinit var searchViewModel: SearchViewModel
     private val defaultLocation = LatLng(37.076526, 36.242001)
     private var locationPermissionGranted = false
-
-
     @SuppressLint("MissingPermission", "PotentialBehaviorOverride")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -77,18 +69,14 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
         // Construct a PlacesClient
         Places.initialize(requireContext(), MAPS_API_KEY)
         placesClient = Places.createClient(requireContext())
-
         // Construct a FusedLocationProviderClient.
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
-
         // Build the map.
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
-
     }
-
     /**
      * Saves the state of the map when the activity is paused.
      */
@@ -99,8 +87,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
         }
         super.onSaveInstanceState(outState)
     }
-
-
     @SuppressLint("PotentialBehaviorOverride")
     override fun onMapReady(map: GoogleMap) {
         this.mapView = map
@@ -113,7 +99,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
             override fun getInfoWindow(arg0: Marker): View? {
                 return null
             }
-
             override fun getInfoContents(marker: Marker): View {
                 // Inflate the layouts for the info window, title and snippet.
                 val infoWindow = layoutInflater.inflate(R.layout.custom_info_contents,
@@ -124,11 +109,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                 snippet.text = marker.snippet
                 return infoWindow
             }
-        })
-
-
-        mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener {
-            return@OnMarkerClickListener false
         })
         // Prompt the user for permission.
         getLocationPermission()
@@ -176,7 +156,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
             Log.e("Exception: %s", e.message, e)
         }
     }
-
     /**
      * Prompts the user for permission to use the device location.
      */
@@ -210,7 +189,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
         locationPermissionGranted = false
         when (requestCode) {
             PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION -> {
-
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -221,6 +199,9 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
+   /*
+    *  Display's the nearby restaurants on map
+    */
     @SuppressLint("PotentialBehaviorOverride", "MissingPermission", "NotifyDataSetChanged")
     private fun nearByRestaurants(){
         lastLocation = Location(LocationManager.NETWORK_PROVIDER)
@@ -229,10 +210,11 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
         fusedLocationProviderClient.lastLocation.addOnCompleteListener {
             val currentLat = lastLocation.latitude
             val currentLng = lastLocation.longitude
-            val preferences = activity?.getSharedPreferences("myPreferences", AppCompatActivity.MODE_PRIVATE)
-            val editor=preferences?.edit()
-            editor?.putString("currentLat",currentLat.toString())
-            editor?.putString("currentLng",currentLng.toString())
+            val preferences =
+                activity?.getSharedPreferences("myPreferences", AppCompatActivity.MODE_PRIVATE)
+            val editor = preferences?.edit()
+            editor?.putString("currentLat", currentLat.toString())
+            editor?.putString("currentLng", currentLng.toString())
             editor?.apply()
             val apikey = MAPS_API_KEY
             val type = "restaurant"
@@ -248,46 +230,45 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                 radius = radius.toString())
             mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
                 if (response.isSuccessful) {
-                         response.body().let {mapResponse ->
-                             for (i in 0 until mapResponse!!.results.size ) {
-                                 val lat = mapResponse.results[i].geometry.location.lat
-                                 val lng = mapResponse.results[i].geometry.location.lng
-                                 val locations = LatLng(lat, lng)
-                                val currentMarker=mapView?.addMarker(MarkerOptions().position(locations)
-                                     .title(mapResponse.results[i].name))
-                                currentMarker?.tag=mapResponse.results[i]
-                                 mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener{Marker->
-                                         val gson= Gson()
-                                          val myTag=gson.toJson(Marker.tag)
-                                     val intent =
-                                         Intent(requireContext(), RestaurantDetails::class.java)
-                                     intent.putExtra("title",Marker.title)
-                                     intent.putExtra("markerTag",myTag)
-                                     startActivity(intent)
-                                    return@OnMarkerClickListener false
-                                 })
-                             }
-                         }}
+                    response.body().let { mapResponse ->
+                        for (i in 0 until mapResponse!!.results.size) {
+                            val lat = mapResponse.results[i].geometry.location.lat
+                            val lng = mapResponse.results[i].geometry.location.lng
+                            val locations = LatLng(lat, lng)
+                            val currentMarker =
+                                mapView?.addMarker(MarkerOptions().position(locations)
+                                    .title(mapResponse.results[i].name))
+                            currentMarker?.tag = mapResponse.results[i]
+                            mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener { Marker ->
+                                val gson = Gson()
+                                val myTag = gson.toJson(Marker.tag)
+                                val intent =
+                                    Intent(requireContext(), RestaurantDetails::class.java)
+                                intent.putExtra("title", Marker.title)
+                                intent.putExtra("markerTag", myTag)
+                                startActivity(intent)
+                                val restaurantLat=preferences!!.getString("myLat",null)
+                                val restaurantLng=preferences.getString("myLng",null)
+                                val restaurantLatLng=LatLng(restaurantLat!!.toDouble(),restaurantLng!!.toDouble())
+                                    mapView!!.clear()
+                                mapView!!.addMarker(MarkerOptions().position(restaurantLatLng).icon(
+                                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)))
+                                return@OnMarkerClickListener false
+                            })
+                        }
+                    }
+                }
             }
-            mapView!!.clear()
-            try {
-
-
-            val intent=Intent()
-            val restaurantLat=intent.getStringExtra("myLat")
-            val restaurantLng=intent.getStringExtra("myLng")
-            val restaurantLatLng=LatLng(restaurantLat!!.toDouble(),restaurantLng!!.toDouble())
-
-                mapView!!.addMarker(MarkerOptions().position(restaurantLatLng).icon(
-                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)))}catch (e:NullPointerException){}
-            }
+        }
     }
+    /*
+     * Search function for the nearby restaurants
+     */
     @SuppressLint("PotentialBehaviorOverride")
     private fun searchRestaurants() {
             val preferences =
                 activity?.getSharedPreferences("myPreferences",
                     Context.MODE_PRIVATE)
-
             editText=EditText(requireContext())
             editText = requireView().findViewById(R.id.query)
             editText.addTextChangedListener(object : TextWatcher {
@@ -303,7 +284,6 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                     val currentLat = preferences!!.getString("currentLat", null)
                     val currentLng = preferences.getString("currentLng", null)
                     val query = editText.text.toString()
-
                     val key = MAPS_API_KEY
                     val repository = SearchRepository()
                     val searchConvertorFactory = SearchConvertorFactory(repository)
@@ -341,13 +321,4 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                 }
             })
     }
-
 }
-
-
-
-
-
-
-
-

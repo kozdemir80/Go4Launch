@@ -1,5 +1,7 @@
 package com.example.go4launch.model.restaturantDetails
-
+/*
+ * Data class for google maps response items
+ */
 data class Result(
     val business_status: String,
     val geometry: Geometry,

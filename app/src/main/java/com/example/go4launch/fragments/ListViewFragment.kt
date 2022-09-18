@@ -21,7 +21,6 @@ import com.example.go4launch.viewmodel.ConvertorFactory
 import com.example.go4launch.viewmodel.MapsViewModel
 import com.example.go4launch.viewmodel.SearchConvertorFactory
 import com.example.go4launch.viewmodel.SearchViewModel
-
 @Suppress("NAME_SHADOWING", "DEPRECATION")
 class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     private lateinit var restaurantAdapter: RestaurantAdapter
@@ -29,9 +28,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     private lateinit var mapsViewModel: MapsViewModel
     private lateinit var searchViewModel: SearchViewModel
     private lateinit var editText: EditText
-
     private lateinit var restaurantList: ArrayList<com.example.go4launch.model.restaturantDetails.RestaurantDetails>
-
     @SuppressLint("NotifyDataSetChanged", "MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,7 +43,6 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
         val preferences = activity?.getSharedPreferences("myPreferences", Context.MODE_PRIVATE)
         val lng = preferences?.getString("currentLng", null)
         val lat = preferences?.getString("currentLat", null)
-
         val apikey = BuildConfig.MAPS_API_KEY
         val type = "restaurant"
         val radius = 1000
@@ -60,13 +56,13 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
             type = type,
             radius = radius.toString(),
         )
+        // observing response from google map's api to display nearby restaurants in a list
         mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
             if (response.isSuccessful) {
                 response.body().let { myResponse ->
-
                     restaurantAdapter.differ.submitList(myResponse?.results)
                     restaurantAdapter.setOnItemClickListener(object :
-                        RestaurantAdapter.onItemClickListener {
+                        RestaurantAdapter.OnItemClickListener {
                         override fun onItemClick(position: Int) {
                             val preferences =
                                 activity?.getSharedPreferences("myPreferences",
@@ -87,24 +83,20 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                             editor?.apply()
                             val intent = Intent(activity, RestaurantDetails::class.java)
                             startActivity(intent)
-
                         }
-
                     })
 
                 }
             }
         }
-
-
     }
-
+    /*
+     * Function to search nearby restaurants in the list view
+     */
     private fun searchRestaurants() {
         val preferences =
             activity?.getSharedPreferences("myPreferences",
                 Context.MODE_PRIVATE)
-
-
         editText=EditText(requireContext())
         editText = requireView().findViewById(R.id.edit_query)
         editText.addTextChangedListener(object : TextWatcher {
@@ -114,9 +106,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                 count: Int,
                 after: Int,
             ) {
-
             }
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val currentLat = preferences!!.getString("currentLat", null)
                 val currentLng = preferences.getString("currentLng", null)
@@ -134,23 +124,18 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                         response.body().let { searchResponse ->
                             restaurantAdapter.differ.submitList(searchResponse?.results)
                             restaurantAdapter.setOnItemClickListener(object :
-                                RestaurantAdapter.onItemClickListener {
+                                RestaurantAdapter.OnItemClickListener {
                                 override fun onItemClick(position: Int) {
                                     val intent = Intent(activity, RestaurantDetails::class.java)
                                     startActivity(intent)
                                 }
-
-
                             })
                         }
                     }
                 }
             }
-
             override fun afterTextChanged(s: Editable?) {
-
             }
-
         })
 
     }

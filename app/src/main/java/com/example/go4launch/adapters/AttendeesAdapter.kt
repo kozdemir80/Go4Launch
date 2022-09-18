@@ -1,5 +1,4 @@
 package com.example.go4launch.adapters
-
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +10,9 @@ import coil.load
 import com.example.go4launch.R
 import com.example.go4launch.model.userdetails.CurrentUser
 import com.google.firebase.database.*
-
+ /*
+ * RecyclerView Adapter to display list of attending co-workers 
+ */
 class AttendeesAdapter(private var attendeesList:ArrayList<CurrentUser>):RecyclerView.Adapter<AttendeesAdapter.AttendeesViewHolder> (){
     private lateinit var database: DatabaseReference
     class AttendeesViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
@@ -33,9 +34,6 @@ class AttendeesAdapter(private var attendeesList:ArrayList<CurrentUser>):Recycle
                         val attendingUsers=attendeesList[position]
                        holder.imageView.load(attendingUsers.Photo)
                        holder.username.text=attendingUsers.Name +" "+"is joining!!"
-
-
-
                     }
                 }
             }
@@ -44,10 +42,7 @@ class AttendeesAdapter(private var attendeesList:ArrayList<CurrentUser>):Recycle
             }
         })
     }
-
     override fun getItemCount(): Int {
         return attendeesList.size
-
     }
-
 }

@@ -31,7 +31,6 @@ import com.google.gson.Gson
 import com.like.LikeButton
 import com.like.OnLikeListener
 import java.util.*
-
 @Suppress("NAME_SHADOWING")
 class RestaurantDetails:AppCompatActivity() {
       private lateinit var binding: RestaurantDetailsActivityBinding
@@ -55,7 +54,6 @@ class RestaurantDetails:AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(applicationContext)
         recyclerView.setHasFixedSize(true)
         attendeesList = arrayListOf()
-
         val title=intent.getStringExtra("title")
         val myJson=intent.getStringExtra("markerTag")
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
@@ -70,23 +68,25 @@ class RestaurantDetails:AppCompatActivity() {
             Log.d(TAG, msg)
             Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
         })
+        /*
+         * Subscribe the push notification topic
+         */
         FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
-
         try {
             listDetails()
-
-
+            /*
+            * Restaurants Details from the mapview
+             */
             val json = Gson()
-            Log.d("myTitle", json.fromJson(myJson, Result::class.java).toString())
+            // Fetches the restaurant details from mapview marker
             val details = json.fromJson(myJson, Result::class.java)
             binding.fabBook.setOnClickListener {
                 if (binding.fabBook.isChecked) {
                     binding.fabBook.isChecked = true
-
                     val preferences=getSharedPreferences("myPreferences", MODE_PRIVATE)
                     val editor=preferences.edit()
-                    intent.putExtra("myLat",details.geometry.location.lat.toString())
-                    intent.putExtra("myLng",details.geometry.location.lng.toString())
+                    editor.putString("myLat",details.geometry.location.lat.toString())
+                    editor.putString("myLng",details.geometry.location.lng.toString())
                     auth = Firebase.auth
                     auth = FirebaseAuth.getInstance()
                     database = FirebaseDatabase.getInstance().getReference("Users")
@@ -97,16 +97,15 @@ class RestaurantDetails:AppCompatActivity() {
                                 for (i in snapshot.children) {
                                     editor.putString("address",details.vicinity)
                                     editor.putString("name",details.name)
-
+                                   // Fetches the user details from firebase datebase
                                     val user = i.getValue(CurrentUser::class.java)
                                     if (user != null && user.restaurantId == details.name) {
                                         attendeesList.add(user)
                                         myUsers.add(user.Name!!.toString().replace("\n",
                                             System.getProperty("line.separator")!!))
                                     }
+                                    // displays the list of attending colleagues to the current restaurant
                                     recyclerView.adapter = AttendeesAdapter(attendeesList)
-
-
                                 }
                                 editor.putStringSet("users", myUsers)
                                 editor.apply()
@@ -121,18 +120,17 @@ class RestaurantDetails:AppCompatActivity() {
                 }
             }
             binding.detailsRestaurantName.text = title
-
             if (binding.detailsRestaurantName.text.isNotEmpty()) {
                 binding.like.isVisible
             }
             binding.detailsRetaurantAddress.text = details.vicinity
-
-
+            // to call restaurants phone
             binding.btnCall.setOnClickListener {
                 val intent = Intent(Intent.ACTION_DIAL)
                 intent.data = Uri.parse(details.formatted_phone_number)
                 startActivity(intent)
             }
+            // to go restaurants website
             binding.btnWebsite.setOnClickListener {
                 try {
                     val intent = Intent(Intent.ACTION_VIEW)
@@ -142,6 +140,7 @@ class RestaurantDetails:AppCompatActivity() {
                 } catch (e: NullPointerException) {
                 }
             }
+            // Like button
             binding.btnLike.setOnLikeListener(object : OnLikeListener {
                 override fun liked(likeButton: LikeButton?) {
                     if (binding.btnLike.isLiked) {
@@ -156,6 +155,9 @@ class RestaurantDetails:AppCompatActivity() {
             })
         }catch (e:NullPointerException){}
     }
+    /*
+     * Show's the restaurant details from ListView Fragment
+     */
     @SuppressLint("StringFormatInvalid")
     private fun listDetails() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
@@ -177,7 +179,7 @@ class RestaurantDetails:AppCompatActivity() {
         val website = preferences.getString("website", null)
         val phoneNumber = preferences.getString("phone_number", null)
         val myImage = preferences.getString("image", null)
-
+        // to go restaurants website
         binding.btnWebsite.setOnClickListener {
             try {
                 val intent = Intent(Intent.ACTION_VIEW)
@@ -187,12 +189,14 @@ class RestaurantDetails:AppCompatActivity() {
             } catch (e: NullPointerException) {
             }
         }
+        // to dial phone number of the restaurant
         binding.btnCall.setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL)
             intent.data = Uri.parse(phoneNumber)
 
             startActivity(intent)
         }
+        // like button
         binding.btnLike.setOnLikeListener(object : OnLikeListener {
             override fun liked(likeButton: LikeButton?) {
                 if (binding.btnLike.isLiked) {
@@ -201,7 +205,6 @@ class RestaurantDetails:AppCompatActivity() {
                     binding.like.isInvisible
                 }
             }
-
             override fun unLiked(likeButton: LikeButton?) {
                 binding.like.isInvisible
             }
@@ -234,7 +237,6 @@ class RestaurantDetails:AppCompatActivity() {
                                     attendeesList.add(user)
                                 }
                                 myUsers.add(user!!.Name!!)
-
                                 recyclerView.adapter = AttendeesAdapter(attendeesList)
                                 setAlarm()
                             }
@@ -242,7 +244,6 @@ class RestaurantDetails:AppCompatActivity() {
                             editor.apply()
                         }
                     }
-
                     override fun onCancelled(error: DatabaseError) {
                         TODO("Not yet implemented")
                     }
@@ -251,7 +252,9 @@ class RestaurantDetails:AppCompatActivity() {
             }
         }
     }
-
+    /*
+     * Alarm for push notification
+     */
     @SuppressLint("ShortAlarm")
     @RequiresApi(Build.VERSION_CODES.M)
     private fun setAlarm() {
@@ -261,7 +264,7 @@ class RestaurantDetails:AppCompatActivity() {
         calendar.set(Calendar.SECOND,0)
         calendar.set(Calendar.MILLISECOND,0)
         alarmManager=getSystemService(ALARM_SERVICE) as AlarmManager
-        val intent=Intent(this, AlarmReciever::class.java)
+        val intent=Intent(this, AlarmReceiver::class.java)
         val pendingIntent= PendingIntent.getBroadcast(
             this,
             0,

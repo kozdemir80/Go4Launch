@@ -13,7 +13,7 @@ import com.example.go4launch.model.userdetails.PushNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-class AlarmReciever:BroadcastReceiver(){
+class AlarmReceiver:BroadcastReceiver(){
     private val TAG="restaurantDetails"
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -23,13 +23,13 @@ class AlarmReciever:BroadcastReceiver(){
         val address1 = preferences!!.getString("address", null)
         val name1 = preferences.getString("name", null)
         val user= preferences.getStringSet("users",null)
+        // push notification topic items
         PushNotification(
             NotificationData(name1, address1, user.toString()),
             TOPIC
         ).also {
             sendNotification(it)
         }
-
     }
     @RequiresApi(Build.VERSION_CODES.M)
     private fun sendNotification(notification:PushNotification)= CoroutineScope(Dispatchers.IO).launch {

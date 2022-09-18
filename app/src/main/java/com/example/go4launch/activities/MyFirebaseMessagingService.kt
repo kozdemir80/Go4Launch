@@ -25,14 +25,9 @@ class MyFirebaseMessagingService:FirebaseMessagingService() {
     @SuppressLint("UnspecifiedImmutableFlag")
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onMessageReceived(message: RemoteMessage) {
-
-
         val currentMessages= message.data["userList"]
         val users=currentMessages.toString().replace("[", "").replace("]", "")
             .replace(",","\n")
-
-
-
         val intent= Intent(this@MyFirebaseMessagingService,RestaurantDetails::class.java)
         val notificationManager=getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationId= Random.nextInt()
@@ -40,6 +35,7 @@ class MyFirebaseMessagingService:FirebaseMessagingService() {
         notificationChannel(notificationManager)
         val pendingIntent= PendingIntent.getActivity(applicationContext,0,intent,
             PendingIntent.FLAG_ONE_SHOT)
+        // custom layout to display  push notification items
         val remoteViews= RemoteViews("com.example.go4launch", R.layout.natification_layout)
         remoteViews.setTextViewText(R.id.notificationTitleTV,message.data["title"])
         remoteViews.setTextViewText(R.id.notificationDescTV,message.data["message"])
