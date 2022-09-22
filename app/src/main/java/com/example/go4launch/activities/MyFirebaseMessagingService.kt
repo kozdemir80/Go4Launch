@@ -18,47 +18,49 @@ import com.example.go4launch.constants.Constants.Companion.channelId
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlin.random.Random
+
 @SuppressLint("MissingFirebaseInstanceTokenRefresh")
-class MyFirebaseMessagingService:FirebaseMessagingService() {
+class MyFirebaseMessagingService : FirebaseMessagingService() {
 
 
     @SuppressLint("UnspecifiedImmutableFlag")
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onMessageReceived(message: RemoteMessage) {
-        val currentMessages= message.data["userList"]
-        val users=currentMessages.toString().replace("[", "").replace("]", "")
-            .replace(",","\n")
-        val intent= Intent(this@MyFirebaseMessagingService,RestaurantDetails::class.java)
-        val notificationManager=getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notificationId= Random.nextInt()
+        val currentMessages = message.data["userList"]
+        val users = currentMessages.toString().replace("[", "").replace("]", "")
+            .replace(",", "\n")
+        val intent = Intent(this@MyFirebaseMessagingService, RestaurantDetails::class.java)
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationId = Random.nextInt()
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         notificationChannel(notificationManager)
-        val pendingIntent= PendingIntent.getActivity(applicationContext,0,intent,
+        val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent,
             PendingIntent.FLAG_ONE_SHOT)
         // custom layout to display  push notification items
-        val remoteViews= RemoteViews("com.example.go4launch", R.layout.natification_layout)
-        remoteViews.setTextViewText(R.id.notificationTitleTV,message.data["title"])
-        remoteViews.setTextViewText(R.id.notificationDescTV,message.data["message"])
+        val remoteViews = RemoteViews("com.example.go4launch", R.layout.natification_layout)
+        remoteViews.setTextViewText(R.id.notificationTitleTV, message.data["title"])
+        remoteViews.setTextViewText(R.id.notificationDescTV, message.data["message"])
         remoteViews.setTextViewText(R.id.userList, users)
         remoteViews.setImageViewResource(R.id.notificationLogoIV, R.drawable.soup)
-        val notification=
-            NotificationCompat.Builder(applicationContext,channelId)
+        val notification =
+            NotificationCompat.Builder(applicationContext, channelId)
                 .setSmallIcon(R.drawable.soup)
                 .setCustomBigContentView(remoteViews)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
                 .setContentIntent(pendingIntent)
                 .build()
-        notificationManager.notify(notificationId,notification)
-
+        notificationManager.notify(notificationId, notification)
     }
-    private fun notificationChannel(notificationManager: NotificationManager){
-        val channelName="channelName"
-        val channel= if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel(channelId,channelName,IMPORTANCE_HIGH).apply {
-                description="My Channel Description"
+
+    private fun notificationChannel(notificationManager: NotificationManager) {
+        val channelName = "channelName"
+        val channel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel(channelId, channelName, IMPORTANCE_HIGH).apply {
+                description = "My Channel Description"
                 enableLights(true)
-                lightColor= Color.GREEN
+                lightColor = Color.GREEN
             }
         } else {
             TODO("VERSION.SDK_INT < O")

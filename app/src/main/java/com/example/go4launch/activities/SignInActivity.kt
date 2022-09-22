@@ -1,4 +1,5 @@
 package com.example.go4launch.activities
+
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Intent
@@ -21,20 +22,22 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-private lateinit var binding: SignInActivityBinding
- private lateinit var mAuth: FirebaseAuth
- @SuppressLint("StaticFieldLeak")
- private lateinit var googleSignInClient: GoogleSignInClient
-private lateinit var callbackManager: CallbackManager
+
+@SuppressLint("StaticFieldLeak")
 @Suppress("DEPRECATION")
-class SignInActivity: AppCompatActivity() {
+class SignInActivity : AppCompatActivity() {
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var callbackManager: CallbackManager
+    private lateinit var binding: SignInActivityBinding
+    private lateinit var mAuth: FirebaseAuth
+
     @SuppressLint("CommitPrefEdits")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.sign_in_activity)
         binding = SignInActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val TAG=""
+        val TAG = ""
         // google sign in builder
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -45,7 +48,7 @@ class SignInActivity: AppCompatActivity() {
         binding.btnLoginGoogle.setOnClickListener {
             singIn()
         }
-        callbackManager= CallbackManager.Factory.create()
+        callbackManager = CallbackManager.Factory.create()
         // Initialize Facebook Login button
         callbackManager = CallbackManager.Factory.create()
         binding.btnLoginFb.setReadPermissions("email", "public_profile")
@@ -55,20 +58,24 @@ class SignInActivity: AppCompatActivity() {
                 Log.d(TAG, "facebook:onSuccess:$loginResult")
                 handleFacebookAccessToken(loginResult.accessToken)
             }
+
             override fun onCancel() {
                 Log.d(TAG, "facebook:onCancel")
                 // ...
             }
+
             override fun onError(error: FacebookException) {
                 Log.d(TAG, "facebook:onError", error)
                 // ...
             }
         })
     }
+
     private fun singIn() {
         val signInIntent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
+
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -89,6 +96,7 @@ class SignInActivity: AppCompatActivity() {
         }
         callbackManager.onActivityResult(requestCode, resultCode, data)
     }
+
     /*
      * google sign in function
      */
@@ -101,18 +109,19 @@ class SignInActivity: AppCompatActivity() {
                     Log.d("SingInActivity", "signInWithCredential:success")
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
-                  val username= mAuth.currentUser?.displayName
-                    Log.d("myuser",username.toString())
-                   val preferences=getSharedPreferences("name", MODE_PRIVATE)
-                    val editor=preferences.edit()
-                    editor.putString("myName",username)
+                    val username = mAuth.currentUser?.displayName
+                    Log.d("myuser", username.toString())
+                    val preferences = getSharedPreferences("name", MODE_PRIVATE)
+                    val editor = preferences.edit()
+                    editor.putString("myName", username)
                     editor.apply()
-                    Log.d("userName",editor.putString("myname",username).toString())
+                    Log.d("userName", editor.putString("myname", username).toString())
                 } else {
                     Log.w("SignInActivity", "signInWithCredential:failure", task.exception)
                 }
             }
     }
+
     private fun handleFacebookAccessToken(token: AccessToken) {
         Log.d(TAG, "handleFacebookAccessToken:$token")
         val credential = FacebookAuthProvider.getCredential(token.token)

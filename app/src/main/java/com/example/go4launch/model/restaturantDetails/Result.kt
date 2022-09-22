@@ -8,7 +8,7 @@ data class Result(
     val icon: String,
     val icon_background_color: String,
     val icon_mask_base_uri: String,
-    val name: String,
+    var name: String,
     val opening_hours: OpeningHours,
     val photos: List<Photo>,
     val place_id: String,
@@ -17,10 +17,10 @@ data class Result(
     val rating: Double,
     val reference: String,
     val scope: String,
-    val types: List<String>,
+    var types: List<String>,
     val user_ratings_total: Int,
-    val vicinity: String,
-    val international_phone_number: String,
+    var vicinity: String,
+    var international_phone_number: String,
     val formatted_phone_number: String,
-    val website:String
+    var website:String
 )

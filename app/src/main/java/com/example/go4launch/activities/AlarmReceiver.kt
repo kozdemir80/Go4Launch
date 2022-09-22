@@ -13,16 +13,17 @@ import com.example.go4launch.model.userdetails.PushNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-class AlarmReceiver:BroadcastReceiver(){
-    private val TAG="restaurantDetails"
+class AlarmReceiver : BroadcastReceiver() {
+    private val TAG = "restaurantDetails"
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onReceive(context: Context?, intent: Intent?) {
-        Intent(context,MyFirebaseMessagingService::class.java)
-        intent?.flags=Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val preferences = context?.getSharedPreferences("myPreferences", AppCompatActivity.MODE_PRIVATE)
+        Intent(context, MyFirebaseMessagingService::class.java)
+        intent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val preferences =
+            context?.getSharedPreferences("myPreferences", AppCompatActivity.MODE_PRIVATE)
         val address1 = preferences!!.getString("address", null)
         val name1 = preferences.getString("name", null)
-        val user= preferences.getStringSet("users",null)
+        val user = preferences.getStringSet("users", null)
         // push notification topic items
         PushNotification(
             NotificationData(name1, address1, user.toString()),
@@ -31,17 +32,19 @@ class AlarmReceiver:BroadcastReceiver(){
             sendNotification(it)
         }
     }
+
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun sendNotification(notification:PushNotification)= CoroutineScope(Dispatchers.IO).launch {
-        try {
-            val response = NotificationInstance.api.postNotification(notification)
-            if (response.isSuccessful) {
-                Log.e(TAG,response.message().toString())
-            } else {
-                Log.e(TAG, response.errorBody().toString())
+    private fun sendNotification(notification: PushNotification) =
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = NotificationInstance.api.postNotification(notification)
+                if (response.isSuccessful) {
+                    Log.e(TAG, response.message().toString())
+                } else {
+                    Log.e(TAG, response.errorBody().toString())
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, e.toString())
             }
-        } catch (e: Exception) {
-            Log.e(TAG, e.toString())
         }
-    }
 }

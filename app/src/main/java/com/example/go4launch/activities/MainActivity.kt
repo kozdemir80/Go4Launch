@@ -1,4 +1,5 @@
 package com.example.go4launch.activities
+
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -30,7 +31,7 @@ import com.google.firebase.ktx.Firebase
 class MainActivity : AppCompatActivity() {
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var binding: ActivityMainBinding
-    private lateinit var mAuth:FirebaseAuth
+    private lateinit var mAuth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
 
 
@@ -45,31 +46,33 @@ class MainActivity : AppCompatActivity() {
             .requestEmail()
             .build()
 
-        googleSignInClient= GoogleSignIn.getClient(this,gso)
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
         drawerViews()
         navHeader()
-        val adapter= ViewPagerAdapter(supportFragmentManager,lifecycle)
-        val bottomNavigationView=findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        val navController=binding.fragmentContainerView.getFragment<NavHostFragment>().navController
-        toggle= ActionBarDrawerToggle(this,binding.mainLayout, R.string.open, R.string.close)
+        val adapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        val navController =
+            binding.fragmentContainerView.getFragment<NavHostFragment>().navController
+        toggle = ActionBarDrawerToggle(this, binding.mainLayout, R.string.open, R.string.close)
         binding.mainLayout.addDrawerListener(toggle)
         toggle.syncState()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.navView.bringToFront()
-        binding.viewPager.adapter=adapter
+        binding.viewPager.adapter = adapter
 
-       bottomNavigationView.setupWithNavController(navController)
-       mAuth= Firebase.auth
-        mAuth= FirebaseAuth.getInstance()
-        val user=mAuth.currentUser
+        bottomNavigationView.setupWithNavController(navController)
+        mAuth = Firebase.auth
+        mAuth = FirebaseAuth.getInstance()
+        val user = mAuth.currentUser
 
 
 
-       Handler(Looper.getMainLooper()).postDelayed({
-            if (user == null){
-                val signInIntent= Intent(this,SignInActivity::class.java)
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (user == null) {
+                val signInIntent = Intent(this, SignInActivity::class.java)
                 startActivity(signInIntent)
-            finish()}
+                finish()
+            }
         }, 2000)
 
         binding.bottomNavigation.setOnItemSelectedListener {
@@ -86,7 +89,7 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (toggle.onOptionsItemSelected(item)){
+        if (toggle.onOptionsItemSelected(item)) {
             return true
         }
         when (item.itemId) {
@@ -97,15 +100,16 @@ class MainActivity : AppCompatActivity() {
 
         return super.onOptionsItemSelected(item)
     }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val menuInflater = menuInflater
-        menuInflater.inflate(R.menu.search_menu,menu)
-        val searchItem=menu.findItem(R.id.app_bar_search)
-        val searchView=searchItem.actionView as SearchView
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+        menuInflater.inflate(R.menu.search_menu, menu)
+        val searchItem = menu.findItem(R.id.app_bar_search)
+        val searchView = searchItem.actionView as SearchView
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                intent.putExtra("query",query)
-                Log.d("myQuery",query.toString())
+                intent.putExtra("query", query)
+                Log.d("myQuery", query.toString())
 
                 return false
             }
@@ -118,17 +122,19 @@ class MainActivity : AppCompatActivity() {
         })
         return super.onCreateOptionsMenu(menu)
     }
-    private fun drawerViews(){
-        val preferences=getSharedPreferences("myPreferences", MODE_PRIVATE)
-       val name= preferences.getString("name",null)
+
+    private fun drawerViews() {
+        val preferences = getSharedPreferences("myPreferences", MODE_PRIVATE)
+        val name = preferences.getString("name", null)
         binding.navView.setBackgroundResource(com.google.android.libraries.places.R.color.quantum_orange)
         binding.navView.setNavigationItemSelectedListener {
-            when(it.itemId){
-                R.id.launch -> title=name
-                R.id.settings -> Toast.makeText(applicationContext,"Settings",Toast.LENGTH_LONG).show()
-                R.id.logout-> {
+            when (it.itemId) {
+                R.id.launch -> title = name
+                R.id.settings -> Toast.makeText(applicationContext, "Settings", Toast.LENGTH_LONG)
+                    .show()
+                R.id.logout -> {
                     googleSignInClient.signOut().addOnCompleteListener {
-                        val intent=Intent(this,SignInActivity::class.java)
+                        val intent = Intent(this, SignInActivity::class.java)
                         startActivity(intent)
                         finish()
                     }
@@ -138,16 +144,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun navHeader(){
-        mAuth= Firebase.auth
-        mAuth= FirebaseAuth.getInstance()
-     val headerView=binding.navView.getHeaderView(0)
-       val headerImage= headerView.findViewById<ImageView>(R.id.circleImageView)
-       val headerName=headerView.findViewById<TextView>(R.id.name)
-       val headerEmail=headerView.findViewById<TextView>(R.id.email)
+    private fun navHeader() {
+        mAuth = Firebase.auth
+        mAuth = FirebaseAuth.getInstance()
+        val headerView = binding.navView.getHeaderView(0)
+        val headerImage = headerView.findViewById<ImageView>(R.id.circleImageView)
+        val headerName = headerView.findViewById<TextView>(R.id.name)
+        val headerEmail = headerView.findViewById<TextView>(R.id.email)
         headerImage.load(mAuth.currentUser?.photoUrl)
-        headerName.text=mAuth.currentUser?.displayName
-        headerEmail.text=mAuth.currentUser?.email
+        headerName.text = mAuth.currentUser?.displayName
+        headerEmail.text = mAuth.currentUser?.email
 
     }
 }

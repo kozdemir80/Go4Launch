@@ -108,7 +108,8 @@ dependencies {
     implementation 'com.github.jd-alexander:LikeButton:0.2.3'
     implementation 'com.google.firebase:firebase-database:20.0.5'
     implementation 'com.google.firebase:firebase-storage:20.0.1'
-
+    testImplementation "org.mockito:mockito-core:2.28.2"
+    testImplementation "io.mockk:mockk:1.9.3"
     //noinspection GradleDependency,GradleDynamicVersion
     implementation 'com.google.maps.android:android-maps-utils:0.5+'
 
