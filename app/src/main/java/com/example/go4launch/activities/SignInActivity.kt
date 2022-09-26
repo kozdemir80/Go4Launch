@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,9 +20,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.FacebookAuthProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.*
 
 @SuppressLint("StaticFieldLeak")
 @Suppress("DEPRECATION")
@@ -30,6 +30,9 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var callbackManager: CallbackManager
     private lateinit var binding: SignInActivityBinding
     private lateinit var mAuth: FirebaseAuth
+    private lateinit var firebaseUser: FirebaseUser
+
+    private val provider = OAuthProvider.newBuilder("github.com")
 
     @SuppressLint("CommitPrefEdits")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +40,7 @@ class SignInActivity : AppCompatActivity() {
         setContentView(R.layout.sign_in_activity)
         binding = SignInActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val TAG = ""
+        val tAG = ""
         // google sign in builder
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -55,12 +58,12 @@ class SignInActivity : AppCompatActivity() {
         binding.btnLoginFb.registerCallback(callbackManager, object :
             FacebookCallback<LoginResult> {
             override fun onSuccess(loginResult: LoginResult) {
-                Log.d(TAG, "facebook:onSuccess:$loginResult")
+                Log.d(tAG, "facebook:onSuccess:$loginResult")
                 handleFacebookAccessToken(loginResult.accessToken)
             }
 
             override fun onCancel() {
-                Log.d(TAG, "facebook:onCancel")
+                Log.d(tAG, "facebook:onCancel")
                 // ...
             }
 
@@ -69,6 +72,67 @@ class SignInActivity : AppCompatActivity() {
                 // ...
             }
         })
+
+        provider.addCustomParameter("login", binding.githubId.text.toString())
+        // Request read access to a user's email addresses.
+        // This must be preconfigured in the app's API permissions.
+        val scopes: ArrayList<String?> = object : ArrayList<String?>() {
+            init {
+                add("user:email")
+            }
+        }
+        provider.scopes = scopes
+
+        binding.githubLogin.setOnClickListener {
+            if (TextUtils.isEmpty(binding.githubId.text.toString())) {
+                Toast.makeText(this, "Enter your github id", Toast.LENGTH_LONG).show()
+            } else {
+                signInWithGithubProvider()
+            }
+
+        }
+
+    }
+
+    // To check if there is a pending result, call pendingAuthResult
+    private fun signInWithGithubProvider() {
+
+        // There's something already here! Finish the sign-in for your user.
+        val pendingResultTask: Task<AuthResult>? = mAuth.pendingAuthResult
+        if (pendingResultTask != null) {
+            pendingResultTask
+                .addOnSuccessListener {
+                    // User is signed in.
+                    Toast.makeText(this, "User exist", Toast.LENGTH_LONG).show()
+                }
+                .addOnFailureListener {
+                    // Handle failure.
+                    Toast.makeText(this, "Error : $it", Toast.LENGTH_LONG).show()
+                }
+        } else {
+
+            mAuth.startActivityForSignInWithProvider( /* activity= */this, provider.build())
+                .addOnSuccessListener {
+                    // User is signed in.
+                    // retrieve the current user
+                    firebaseUser = mAuth.currentUser!!
+
+                    // navigate to HomePageActivity after successful login
+                    val intent = Intent(this, MainActivity::class.java)
+
+                    // send github user name from MainActivity to HomePageActivity
+                    intent.putExtra("githubUserName", firebaseUser.displayName)
+                    this.startActivity(intent)
+                    Toast.makeText(this, "Login Successfully", Toast.LENGTH_LONG).show()
+
+                }
+                .addOnFailureListener {
+                    // Handle failure.
+                    Toast.makeText(this, "Error : $it", Toast.LENGTH_LONG).show()
+                }
+        }
+
+
     }
 
     private fun singIn() {
@@ -110,12 +174,12 @@ class SignInActivity : AppCompatActivity() {
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     val username = mAuth.currentUser?.displayName
-                    Log.d("myuser", username.toString())
+                    Log.d("myUser", username.toString())
                     val preferences = getSharedPreferences("name", MODE_PRIVATE)
                     val editor = preferences.edit()
                     editor.putString("myName", username)
                     editor.apply()
-                    Log.d("userName", editor.putString("myname", username).toString())
+                    Log.d("userName", editor.putString("myName", username).toString())
                 } else {
                     Log.w("SignInActivity", "signInWithCredential:failure", task.exception)
                 }

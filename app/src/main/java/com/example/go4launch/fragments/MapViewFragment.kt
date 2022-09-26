@@ -1,4 +1,5 @@
 package com.example.go4launch.fragments
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
@@ -38,14 +39,16 @@ import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.gson.Gson
+
 @Suppress("DEPRECATION")
-class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback {
+class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback {
     private var mapView: GoogleMap? = null
     private lateinit var lastLocation: Location
     private lateinit var placesClient: PlacesClient
     private var cameraPosition: CameraPosition? = null
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private lateinit var editText:EditText
+    private lateinit var editText: EditText
+
     companion object {
         private const val KEY_CAMERA_POSITION = "camera_position"
         private const val KEY_LOCATION = "location"
@@ -53,15 +56,17 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
         const val DEFAULT_ZOOM = 15
         private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
     }
-    private lateinit  var mapsViewModel: MapsViewModel
+
+    private lateinit var mapsViewModel: MapsViewModel
     private lateinit var searchViewModel: SearchViewModel
     private val defaultLocation = LatLng(37.076526, 36.242001)
     private var locationPermissionGranted = false
+
     @SuppressLint("MissingPermission", "PotentialBehaviorOverride")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        editText= EditText(requireContext())
-        editText=view.findViewById(R.id.query)
+        editText = EditText(requireContext())
+        editText = view.findViewById(R.id.query)
         if (savedInstanceState != null) {
             lastLocation = savedInstanceState.getParcelable(KEY_LOCATION)!!
             cameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION)
@@ -77,6 +82,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
             .findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
     }
+
     /**
      * Saves the state of the map when the activity is paused.
      */
@@ -87,6 +93,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
         }
         super.onSaveInstanceState(outState)
     }
+
     @SuppressLint("PotentialBehaviorOverride")
     override fun onMapReady(map: GoogleMap) {
         this.mapView = map
@@ -99,6 +106,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
             override fun getInfoWindow(arg0: Marker): View? {
                 return null
             }
+
             override fun getInfoContents(marker: Marker): View {
                 // Inflate the layouts for the info window, title and snippet.
                 val infoWindow = layoutInflater.inflate(R.layout.custom_info_contents,
@@ -117,6 +125,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
         searchRestaurants()
 
     }
+
     @SuppressLint("MissingPermission")
     private fun getDeviceLocation() {
         /*
@@ -138,10 +147,10 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                         val preferences =
                             activity?.getSharedPreferences("myPreferences",
                                 Context.MODE_PRIVATE)
-                        val editor=preferences!!.edit()
-                        editor.putString("lastLocationLat",lastLocation.latitude.toString())
-                        editor.putString("lastLocationLng",lastLocation.longitude.toString())
-                            editor.apply()
+                        val editor = preferences!!.edit()
+                        editor.putString("lastLocationLat", lastLocation.latitude.toString())
+                        editor.putString("lastLocationLng", lastLocation.longitude.toString())
+                        editor.apply()
 
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.")
@@ -156,6 +165,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
             Log.e("Exception: %s", e.message, e)
         }
     }
+
     /**
      * Prompts the user for permission to use the device location.
      */
@@ -184,7 +194,7 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         locationPermissionGranted = false
         when (requestCode) {
@@ -199,11 +209,12 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
-   /*
-    *  Display's the nearby restaurants on map
-    */
+
+    /*
+     *  Display's the nearby restaurants on map
+     */
     @SuppressLint("PotentialBehaviorOverride", "MissingPermission", "NotifyDataSetChanged")
-    private fun nearByRestaurants(){
+    private fun nearByRestaurants() {
         lastLocation = Location(LocationManager.NETWORK_PROVIDER)
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -247,10 +258,11 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
                                 intent.putExtra("title", Marker.title)
                                 intent.putExtra("markerTag", myTag)
                                 startActivity(intent)
-                                val restaurantLat=preferences!!.getString("myLat",null)
-                                val restaurantLng=preferences.getString("myLng",null)
-                                val restaurantLatLng=LatLng(restaurantLat!!.toDouble(),restaurantLng!!.toDouble())
-                                    mapView!!.clear()
+                                val restaurantLat = preferences!!.getString("myLat", null)
+                                val restaurantLng = preferences.getString("myLng", null)
+                                val restaurantLatLng =
+                                    LatLng(restaurantLat!!.toDouble(), restaurantLng!!.toDouble())
+                                mapView!!.clear()
                                 mapView!!.addMarker(MarkerOptions().position(restaurantLatLng).icon(
                                     BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)))
                                 return@OnMarkerClickListener false
@@ -261,64 +273,68 @@ class MapViewFragment: Fragment(R.layout.fragment_map_view), OnMapReadyCallback 
             }
         }
     }
+
     /*
      * Search function for the nearby restaurants
      */
     @SuppressLint("PotentialBehaviorOverride")
     private fun searchRestaurants() {
-            val preferences =
-                activity?.getSharedPreferences("myPreferences",
-                    Context.MODE_PRIVATE)
-            editText=EditText(requireContext())
-            editText = requireView().findViewById(R.id.query)
-            editText.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int,
-                ) {
-                }
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    mapView!!.clear()
-                    val currentLat = preferences!!.getString("currentLat", null)
-                    val currentLng = preferences.getString("currentLng", null)
-                    val query = editText.text.toString()
-                    val key = MAPS_API_KEY
-                    val repository = SearchRepository()
-                    val searchConvertorFactory = SearchConvertorFactory(repository)
-                    searchViewModel = SearchViewModel(repository)
-                    searchViewModel = ViewModelProvider(this@MapViewFragment,
-                        searchConvertorFactory)[searchViewModel::class.java]
-                    searchViewModel.searchRestaurants(query,
-                        "$currentLat,$currentLng",key)
-                    searchViewModel.myResponse.observe(viewLifecycleOwner) { response ->
-                        if (response.isSuccessful) {
-                            response.body().let { searchResponse ->
-                                for (i in 0 until searchResponse!!.results.size) {
-                                    val lat = searchResponse.results[i].geometry.location.lat
-                                    val lng = searchResponse.results[i].geometry.location.lng
-                                    val searchLatLng = LatLng(lat, lng)
-                                   val searchMarker= mapView?.addMarker(MarkerOptions().position(searchLatLng)
+        val preferences =
+            activity?.getSharedPreferences("myPreferences",
+                Context.MODE_PRIVATE)
+        editText = EditText(requireContext())
+        editText = requireView().findViewById(R.id.query)
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int,
+            ) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                mapView!!.clear()
+                val currentLat = preferences!!.getString("currentLat", null)
+                val currentLng = preferences.getString("currentLng", null)
+                val query = editText.text.toString()
+                val key = MAPS_API_KEY
+                val repository = SearchRepository()
+                val searchConvertorFactory = SearchConvertorFactory(repository)
+                searchViewModel = SearchViewModel(repository)
+                searchViewModel = ViewModelProvider(this@MapViewFragment,
+                    searchConvertorFactory)[searchViewModel::class.java]
+                searchViewModel.searchRestaurants(query,
+                    "$currentLat,$currentLng", key)
+                searchViewModel.myResponse.observe(viewLifecycleOwner) { response ->
+                    if (response.isSuccessful) {
+                        response.body().let { searchResponse ->
+                            for (i in 0 until searchResponse!!.results.size) {
+                                val lat = searchResponse.results[i].geometry.location.lat
+                                val lng = searchResponse.results[i].geometry.location.lng
+                                val searchLatLng = LatLng(lat, lng)
+                                val searchMarker =
+                                    mapView?.addMarker(MarkerOptions().position(searchLatLng)
                                         .title(searchResponse.results[i].name))
-                                    searchMarker?.tag=searchResponse.results[i]
-                                    mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener {Marker->
-                                        val gson= Gson()
-                                        val tag=gson.toJson(Marker.tag)
-                                        val intent =
-                                            Intent(requireContext(), RestaurantDetails::class.java)
-                                        intent.putExtra("searchTitle",Marker.title)
-                                        intent.putExtra("searchTag",tag)
-                                        startActivity(intent)
-                                        return@OnMarkerClickListener false
-                                    })
-                                }
+                                searchMarker?.tag = searchResponse.results[i]
+                                mapView?.setOnMarkerClickListener(GoogleMap.OnMarkerClickListener { Marker ->
+                                    val gson = Gson()
+                                    val tag = gson.toJson(Marker.tag)
+                                    val intent =
+                                        Intent(requireContext(), RestaurantDetails::class.java)
+                                    intent.putExtra("searchTitle", Marker.title)
+                                    intent.putExtra("searchTag", tag)
+                                    startActivity(intent)
+                                    return@OnMarkerClickListener false
+                                })
                             }
                         }
                     }
                 }
-                override fun afterTextChanged(s: Editable?) {
-                }
-            })
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+        })
     }
 }

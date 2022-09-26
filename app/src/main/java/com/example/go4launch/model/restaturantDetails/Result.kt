@@ -1,4 +1,5 @@
 package com.example.go4launch.model.restaturantDetails
+
 /*
  * Data class for google maps response items
  */
@@ -22,5 +23,5 @@ data class Result(
     var vicinity: String,
     var international_phone_number: String,
     val formatted_phone_number: String,
-    var website:String
+    var website: String,
 )

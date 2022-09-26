@@ -38,7 +38,7 @@ class RestaurantDetails : AppCompatActivity() {
     private lateinit var binding: RestaurantDetailsActivityBinding
     private lateinit var recyclerView: RecyclerView
     private lateinit var attendeesList: ArrayList<CurrentUser>
-    private val TAG = "restaurantDetails"
+    private val tAG = "restaurantDetails"
     private lateinit var calendar: Calendar
     private lateinit var auth: FirebaseAuth
     private lateinit var alarmManager: AlarmManager
@@ -61,14 +61,14 @@ class RestaurantDetails : AppCompatActivity() {
         val myJson = intent.getStringExtra("markerTag")
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
             if (!task.isSuccessful) {
-                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
+                Log.w(tAG, "Fetching FCM registration token failed", task.exception)
                 return@OnCompleteListener
             }
             // Get new FCM registration token
             val token = task.result
             // Log and toast
             val msg = getString(R.string.msg_token_fmt, token)
-            Log.d(TAG, msg)
+            Log.d(tAG, msg)
             Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
         })
         /*
@@ -169,14 +169,14 @@ class RestaurantDetails : AppCompatActivity() {
     private fun listDetails() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
             if (!task.isSuccessful) {
-                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
+                Log.w(tAG, "Fetching FCM registration token failed", task.exception)
                 return@OnCompleteListener
             }
             // Get new FCM registration token
             val token = task.result
             // Log and toast
             val msg = getString(R.string.msg_token_fmt, token)
-            Log.d(TAG, msg)
+            Log.d(tAG, msg)
             Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
         })
         FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)

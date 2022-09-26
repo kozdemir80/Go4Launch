@@ -1,4 +1,5 @@
 package com.example.go4launch.activities
+
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -13,8 +14,10 @@ import com.example.go4launch.model.userdetails.PushNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 class AlarmReceiver : BroadcastReceiver() {
-    private val TAG = "restaurantDetails"
+    private val tAG = "restaurantDetails"
+
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onReceive(context: Context?, intent: Intent?) {
         Intent(context, MyFirebaseMessagingService::class.java)
@@ -39,12 +42,12 @@ class AlarmReceiver : BroadcastReceiver() {
             try {
                 val response = NotificationInstance.api.postNotification(notification)
                 if (response.isSuccessful) {
-                    Log.e(TAG, response.message().toString())
+                    Log.e(tAG, response.message().toString())
                 } else {
-                    Log.e(TAG, response.errorBody().toString())
+                    Log.e(tAG, response.errorBody().toString())
                 }
             } catch (e: Exception) {
-                Log.e(TAG, e.toString())
+                Log.e(tAG, e.toString())
             }
         }
 }

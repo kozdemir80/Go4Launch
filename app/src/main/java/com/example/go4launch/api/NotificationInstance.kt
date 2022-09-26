@@ -6,14 +6,14 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class NotificationInstance {
 
-    companion object{
+    companion object {
         private val retrofit by lazy {
             Retrofit.Builder()
                 .baseUrl(Constants.firebase_url)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
         }
-        val api by lazy {
+        val api: NotificationApi by lazy {
             retrofit.create(NotificationApi::class.java)
         }
     }

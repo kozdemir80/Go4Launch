@@ -1,4 +1,5 @@
 package com.example.go4launch.fragments
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -21,6 +22,7 @@ import com.example.go4launch.viewmodel.ConvertorFactory
 import com.example.go4launch.viewmodel.MapsViewModel
 import com.example.go4launch.viewmodel.SearchConvertorFactory
 import com.example.go4launch.viewmodel.SearchViewModel
+
 @Suppress("NAME_SHADOWING", "DEPRECATION")
 class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     private lateinit var restaurantAdapter: RestaurantAdapter
@@ -29,6 +31,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     private lateinit var searchViewModel: SearchViewModel
     private lateinit var editText: EditText
     private lateinit var restaurantList: ArrayList<com.example.go4launch.model.restaturantDetails.RestaurantDetails>
+
     @SuppressLint("NotifyDataSetChanged", "MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -90,6 +93,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
             }
         }
     }
+
     /*
      * Function to search nearby restaurants in the list view
      */
@@ -97,7 +101,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
         val preferences =
             activity?.getSharedPreferences("myPreferences",
                 Context.MODE_PRIVATE)
-        editText=EditText(requireContext())
+        editText = EditText(requireContext())
         editText = requireView().findViewById(R.id.edit_query)
         editText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(
@@ -107,6 +111,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                 after: Int,
             ) {
             }
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val currentLat = preferences!!.getString("currentLat", null)
                 val currentLng = preferences.getString("currentLng", null)
@@ -118,7 +123,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                 searchViewModel = ViewModelProvider(this@ListViewFragment,
                     searchConvertorFactory)[searchViewModel::class.java]
                 searchViewModel.searchRestaurants(query,
-                    "$currentLat,$currentLng",key)
+                    "$currentLat,$currentLng", key)
                 searchViewModel.myResponse.observe(viewLifecycleOwner) { response ->
                     if (response.isSuccessful) {
                         response.body().let { searchResponse ->
@@ -134,6 +139,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                     }
                 }
             }
+
             override fun afterTextChanged(s: Editable?) {
             }
         })

@@ -14,32 +14,33 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
-class WorkMateFragment:Fragment(R.layout.fragment_work_mate) {
+
+class WorkMateFragment : Fragment(R.layout.fragment_work_mate) {
     private lateinit var recyclerView: RecyclerView
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
-    private lateinit var imageView:ImageView
+    private lateinit var imageView: ImageView
     private lateinit var workmatesList: ArrayList<CurrentUser>
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setWorkMates()
-        recyclerView=view.findViewById(R.id.work_mate_list)
-        recyclerView.layoutManager= LinearLayoutManager(activity)
+        recyclerView = view.findViewById(R.id.work_mate_list)
+        recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.setHasFixedSize(true)
-        workmatesList= arrayListOf()
-        imageView= ImageView(requireContext())
+        workmatesList = arrayListOf()
+        imageView = ImageView(requireContext())
         imageView.findViewById<ImageView>(R.id.imageView)
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     for (i in snapshot.children) {
-                            val id = i.child("id").value.toString()
-                            val name = i.child("name").value.toString()
-                            val photoUrl = i.child("photo").value.toString()
-                            val restaurantName=i.child("restaurantId").value.toString()
-                            val user = CurrentUser(name, id, photoUrl,restaurantName)
-                            workmatesList.add(user)
-                            recyclerView.adapter = UserAdapter(workmatesList)
+                        val id = i.child("id").value.toString()
+                        val name = i.child("name").value.toString()
+                        val photoUrl = i.child("photo").value.toString()
+                        val restaurantName = i.child("restaurantId").value.toString()
+                        val user = CurrentUser(name, id, photoUrl, restaurantName)
+                        workmatesList.add(user)
+                        recyclerView.adapter = UserAdapter(workmatesList)
                     }
                 }
             }
@@ -49,6 +50,7 @@ class WorkMateFragment:Fragment(R.layout.fragment_work_mate) {
             }
         })
     }
+
     private fun setWorkMates() {
         auth = Firebase.auth
         auth = FirebaseAuth.getInstance()
@@ -59,6 +61,6 @@ class WorkMateFragment:Fragment(R.layout.fragment_work_mate) {
             activity?.getSharedPreferences("myPreferences", Context.MODE_PRIVATE)
         val restaurantName = preferences?.getString("Name", null)
         database = FirebaseDatabase.getInstance().getReference("Users")
-        database.child(id).setValue(CurrentUser(name, id, photoUrl,restaurantName))
+        database.child(id).setValue(CurrentUser(name, id, photoUrl, restaurantName))
     }
 }
