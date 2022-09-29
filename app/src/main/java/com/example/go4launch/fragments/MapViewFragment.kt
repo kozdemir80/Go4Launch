@@ -239,7 +239,7 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
                 loc = "$currentLat,$currentLng",
                 type = type,
                 radius = radius.toString())
-            mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
+            mapsViewModel.restaurantDetailsResponse.observe(viewLifecycleOwner) { response ->
                 if (response.isSuccessful) {
                     response.body().let { mapResponse ->
                         for (i in 0 until mapResponse!!.results.size) {
@@ -306,7 +306,7 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
                     searchConvertorFactory)[searchViewModel::class.java]
                 searchViewModel.searchRestaurants(query,
                     "$currentLat,$currentLng", key)
-                searchViewModel.myResponse.observe(viewLifecycleOwner) { response ->
+                searchViewModel.searchResponse.observe(viewLifecycleOwner) { response ->
                     if (response.isSuccessful) {
                         response.body().let { searchResponse ->
                             for (i in 0 until searchResponse!!.results.size) {

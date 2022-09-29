@@ -60,7 +60,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
             radius = radius.toString(),
         )
         // observing response from google map's api to display nearby restaurants in a list
-        mapsViewModel.myResponse.observe(viewLifecycleOwner) { response ->
+        mapsViewModel.restaurantDetailsResponse.observe(viewLifecycleOwner) { response ->
             if (response.isSuccessful) {
                 response.body().let { myResponse ->
                     restaurantAdapter.differ.submitList(myResponse?.results)
@@ -124,7 +124,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                     searchConvertorFactory)[searchViewModel::class.java]
                 searchViewModel.searchRestaurants(query,
                     "$currentLat,$currentLng", key)
-                searchViewModel.myResponse.observe(viewLifecycleOwner) { response ->
+                searchViewModel.searchResponse.observe(viewLifecycleOwner) { response ->
                     if (response.isSuccessful) {
                         response.body().let { searchResponse ->
                             restaurantAdapter.differ.submitList(searchResponse?.results)

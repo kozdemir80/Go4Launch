@@ -9,12 +9,12 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 
 class SearchViewModel(private val repository: SearchRepository) : ViewModel() {
-    val myResponse: MutableLiveData<Response<RestaurantDetails>> = MutableLiveData()
+    val searchResponse: MutableLiveData<Response<RestaurantDetails>> = MutableLiveData()
     fun searchRestaurants(query: String, location: String, key: String) {
         viewModelScope.launch {
             val response: Response<RestaurantDetails> =
                 repository.searchRestaurants(query = query, location = location, key = key)
-            myResponse.value = response
+            searchResponse.value = response
         }
     }
 }

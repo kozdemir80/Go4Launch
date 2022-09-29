@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="map_view" translatable="false">vista del mapa</string>
+    <string name="sign_in_with_facebook" translatable="false">Iniciar sesión usando Facebook</string>
+    <string name="is_eating_at">esta comiendo en</string>
+    <string name="search_restaurants">buscar restaurantes</string>
+    <string name="enter_your_email_associated_with_github">ingrese su correo electrónico asociado con github</string>
+    <string name="sign_n_with_github">Iniciar sesión usando GitHub</string>
+    <string name="continue_with_github">continuar con github</string>
+    <string name="WorkMates">compañeros de trabajo</string>
+    <string name="YourLaunch">tu almuerzo</string>
+    <string name="Settings">ajustes</string>
+    <string name="LogOut">cerrar sesión</string>
+    <string name="MapView">vista del mapa</string>
+    <string name="ListView">Vista de la lista</string>
+    <string name="WEBSITE" translatable="false">sitio web</string>
+    <string name="CALL" translatable="false">llamar</string>
+    <string name="restaurantAddress">Dirección del restaurante</string>
+    <string name="restaurantName">Nombre del restaurante</string>
+    <string name="is_joining">se une!!</string>
+    <string name="descrption" translatable="false">descripción</string>
+    <string name="title">título</string>
+</resources>
