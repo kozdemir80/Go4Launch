@@ -83,13 +83,12 @@ class RestaurantDetails : AppCompatActivity() {
             val json = Gson()
             // Fetches the restaurant details from mapview marker
             val details = json.fromJson(myJson, Result::class.java)
+            Log.d("myTagg",details.toString())
             binding.fabBook.setOnClickListener {
                 if (binding.fabBook.isChecked) {
                     binding.fabBook.isChecked = true
                     val preferences = getSharedPreferences("myPreferences", MODE_PRIVATE)
                     val editor = preferences.edit()
-                    editor.putString("myLat", details.geometry.location.lat.toString())
-                    editor.putString("myLng", details.geometry.location.lng.toString())
                     auth = Firebase.auth
                     auth = FirebaseAuth.getInstance()
                     database = FirebaseDatabase.getInstance().getReference("Users")
@@ -98,22 +97,22 @@ class RestaurantDetails : AppCompatActivity() {
                         override fun onDataChange(snapshot: DataSnapshot) {
                             if (snapshot.exists()) {
                                 for (i in snapshot.children) {
-                                    editor.putString("address", details.vicinity)
-                                    editor.putString("name", details.name)
-                                    // Fetches the user details from firebase datebase
-                                    val user = i.getValue(CurrentUser::class.java)
-                                    if (user != null && user.restaurantId == details.name) {
-                                        attendeesList.add(user)
-                                        myUsers.add(user.Name!!.toString().replace("\n",
-                                            System.getProperty("line.separator")!!))
+                                        editor.putString("address", details.vicinity)
+                                        editor.putString("name", details.name)
+                                        // Fetches the user details from firebase database
+                                        val user = i.getValue(CurrentUser::class.java)
+                                        if (user != null && user.restaurantId == details.name) {
+                                            attendeesList.add(user)
+                                            myUsers.add(user.Name!!.toString().replace("\n",
+                                                System.getProperty("line.separator")!!))
+                                        }
+                                        // displays the list of attending colleagues to the current restaurant
+                                        recyclerView.adapter = AttendeesAdapter(attendeesList)
                                     }
-                                    // displays the list of attending colleagues to the current restaurant
-                                    recyclerView.adapter = AttendeesAdapter(attendeesList)
                                 }
-                                editor.putStringSet("users", myUsers)
+                                editor.putStringSet("user", myUsers)
                                 editor.apply()
                                 setAlarm()
-                            }
                         }
 
                         override fun onCancelled(error: DatabaseError) {
@@ -180,12 +179,14 @@ class RestaurantDetails : AppCompatActivity() {
             Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
         })
         FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
-        val preferences = getSharedPreferences("myPreferences", MODE_PRIVATE)
-        val address1 = preferences.getString("address", null)
-        val name1 = preferences.getString("name", null)
-        val website = preferences.getString("website", null)
-        val phoneNumber = preferences.getString("phone_number", null)
-        val myImage = preferences.getString("image", null)
+        try {
+        val address1 = intent.getStringExtra("address")
+        val name1 = intent.getStringExtra("name")
+        val website = intent.getStringExtra("website")
+        val phoneNumber = intent.getStringExtra("phone_number")
+        val restaurantLat=intent.getDoubleArrayExtra("myLat")
+        val restaurantLng=intent.getDoubleArrayExtra("myLng")
+        val myImage = intent.getStringExtra("image")
         // to go restaurants website
         binding.btnWebsite.setOnClickListener {
             try {
@@ -228,7 +229,9 @@ class RestaurantDetails : AppCompatActivity() {
                 binding.fabBook.isChecked = true
                 val preferences = getSharedPreferences("myPreferences", MODE_PRIVATE)
                 val editor = preferences.edit()
-                editor.putString("Name", name1)
+                editor.putString("myLat", restaurantLat.toString())
+                editor.putString("myLng", restaurantLng.toString())
+                editor.putString("name", name1)
                 editor.putString("address", address1)
                 editor.apply()
                 auth = Firebase.auth
@@ -248,7 +251,7 @@ class RestaurantDetails : AppCompatActivity() {
                                 recyclerView.adapter = AttendeesAdapter(attendeesList)
                                 setAlarm()
                             }
-                            editor.putStringSet("users", myUsers)
+                            editor.putStringSet("user", myUsers)
                             editor.apply()
                         }
                     }
@@ -260,6 +263,7 @@ class RestaurantDetails : AppCompatActivity() {
                 savedStateRegistry
             }
         }
+        }catch (e:java.lang.NullPointerException){}
     }
 
     /*

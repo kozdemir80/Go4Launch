@@ -67,24 +67,20 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                     restaurantAdapter.setOnItemClickListener(object :
                         RestaurantAdapter.OnItemClickListener {
                         override fun onItemClick(position: Int) {
-                            val preferences =
-                                activity?.getSharedPreferences("myPreferences",
-                                    Context.MODE_PRIVATE)
-                            val editor = preferences?.edit()
-                            editor?.putString("phone_number",
-                                myResponse!!.results[position].formatted_phone_number)
-                            editor?.putString("website", myResponse!!.results[position].website)
-                            editor?.putFloat("rating",
-                                myResponse!!.results[position].rating.toFloat())
-                            editor?.putString("name", myResponse!!.results[position].name)
-                            editor?.putString("address", myResponse!!.results[position].vicinity)
-                            editor?.putString("image", myResponse!!.results[position].icon)
-                            editor?.putString("myLat",
-                                myResponse!!.results[position].geometry.location.lat.toString())
-                            editor?.putString("myLng",
-                                myResponse!!.results[position].geometry.location.lng.toString())
-                            editor?.apply()
                             val intent = Intent(activity, RestaurantDetails::class.java)
+
+                            intent.putExtra("phone_number",
+                                myResponse!!.results[position].formatted_phone_number)
+                            intent.putExtra("website", myResponse.results[position].website)
+                            intent.putExtra("rating",
+                                myResponse.results[position].rating.toFloat())
+                            intent.putExtra("name", myResponse.results[position].name)
+                            intent.putExtra("address", myResponse.results[position].vicinity)
+                            intent.putExtra("image", myResponse.results[position].icon)
+                            intent.putExtra("myLat",
+                                myResponse.results[position].geometry.location.lat.toString())
+                            intent.putExtra("myLng",
+                                myResponse.results[position].geometry.location.lng.toString())
                             startActivity(intent)
                         }
                     })

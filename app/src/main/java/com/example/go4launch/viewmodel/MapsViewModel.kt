@@ -1,5 +1,6 @@
 package com.example.go4launch.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,12 +13,15 @@ import retrofit2.Response
  * ViewModel class to display google maps responses
  */
 class MapsViewModel(private val repository: RestaurantRepository) : ViewModel() {
-    val restaurantDetailsResponse: MutableLiveData<Response<RestaurantDetails>> = MutableLiveData()
+  private val _restaurantDetailsResponse: MutableLiveData<Response<RestaurantDetails>> = MutableLiveData()
+    val restaurantDetailsResponse:LiveData<Response<RestaurantDetails>>
+    get() = _restaurantDetailsResponse
     fun getRestaurantDetails(loc: String, type: String, key: String, radius: String) {
+
         viewModelScope.launch {
             val response: Response<RestaurantDetails> = repository.getRestaurants(loc = loc,
                 type = type, key = key, radius = radius)
-            restaurantDetailsResponse.value = response
+            _restaurantDetailsResponse.value = response
         }
     }
 }

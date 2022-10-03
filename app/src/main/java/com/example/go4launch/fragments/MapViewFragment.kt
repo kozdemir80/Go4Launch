@@ -239,7 +239,7 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
                 loc = "$currentLat,$currentLng",
                 type = type,
                 radius = radius.toString())
-            mapsViewModel.restaurantDetailsResponse.observe(viewLifecycleOwner) { response ->
+            mapsViewModel.restaurantDetailsResponse.observe(viewLifecycleOwner) {response ->
                 if (response.isSuccessful) {
                     response.body().let { mapResponse ->
                         for (i in 0 until mapResponse!!.results.size) {

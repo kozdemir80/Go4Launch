@@ -26,7 +26,7 @@ class AlarmReceiver : BroadcastReceiver() {
             context?.getSharedPreferences("myPreferences", AppCompatActivity.MODE_PRIVATE)
         val address1 = preferences!!.getString("address", null)
         val name1 = preferences.getString("name", null)
-        val user = preferences.getStringSet("users", null)
+        val user = preferences.getStringSet("user", null)
         // push notification topic items
         PushNotification(
             NotificationData(name1, address1, user.toString()),
