@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.go4launch.api.RestaurantRepository
 import com.example.go4launch.model.restaturantDetails.RestaurantDetails
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
@@ -18,7 +19,7 @@ class MapsViewModel(private val repository: RestaurantRepository) : ViewModel() 
     get() = _restaurantDetailsResponse
     fun getRestaurantDetails(loc: String, type: String, key: String, radius: String) {
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val response: Response<RestaurantDetails> = repository.getRestaurants(loc = loc,
                 type = type, key = key, radius = radius)
             _restaurantDetailsResponse.value = response
