@@ -22,7 +22,7 @@ class MapsViewModel(private val repository: RestaurantRepository) : ViewModel() 
         viewModelScope.launch(Dispatchers.IO) {
             val response: Response<RestaurantDetails> = repository.getRestaurants(loc = loc,
                 type = type, key = key, radius = radius)
-            _restaurantDetailsResponse.value = response
+            _restaurantDetailsResponse.postValue(response)
         }
     }
 }

@@ -19,7 +19,7 @@ class SearchViewModel(private val repository: SearchRepository) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val response: Response<RestaurantDetails> =
                 repository.searchRestaurants(query = query, location = location, key = key)
-            _searchResponse.value = response
+            _searchResponse.postValue(response)
         }
     }
 }
